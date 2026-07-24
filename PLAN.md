@@ -174,8 +174,8 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - [x] 🤖 Crear estructura de carpetas (`src/lib`, `src/data`, `src/hooks`, `src/components`, `src/routes`)
 - [x] 🤖 Instalar `lucide-react`
 - [ ] ⏸ Crear cuenta en Supabase (si no existe) y generar un token de acceso (Personal Access Token o sesión de `supabase login` vía CLI); compartirlo con el agente
-- [ ] 🤖 Crear el proyecto en Supabase, las tablas (`trips`, `activities`, `lodgings`) y las políticas RLS "allow all" para `anon` (vía Supabase CLI/Management API)
-- [ ] 🤖 Obtener la URL y anon key del proyecto creado; crear `.env` local (no versionado) y `.env.example`
+- [x] 🤖 Crear el proyecto en Supabase, las tablas (`trips`, `activities`, `lodgings`) y las políticas RLS "allow all" para `anon` (vía Supabase CLI/Management API)
+- [x] 🤖 Obtener la URL y anon key del proyecto creado; crear `.env` local (no versionado) y `.env.example`
 - [ ] ⏸ Configurar los secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en GitHub (Settings → Secrets and variables → Actions)
 - [ ] 🤖 Crear workflow de GitHub Actions (build + deploy a Pages)
 - [ ] ⏸ Habilitar GitHub Pages en Settings → Pages (Source: GitHub Actions)
