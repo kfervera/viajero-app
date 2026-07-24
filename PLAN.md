@@ -163,7 +163,7 @@ Al llegar a un ítem ⏸, el agente se detiene, explica con claridad qué hay qu
 Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 0 — Setup
-- [ ] 🤖 Scaffold del proyecto (Vite + React + TS)
+- [x] 🤖 Scaffold del proyecto (Vite + React + TS)
 - [ ] 🤖 Configurar Tailwind CSS
 - [ ] 🤖 Configurar ESLint + Prettier
 - [ ] 🤖 Crear estructura de carpetas (`src/lib`, `src/data`, `src/hooks`, `src/components`, `src/routes`)
