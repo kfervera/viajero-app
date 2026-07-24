@@ -5,6 +5,7 @@ Itinerario de viajes, web, mobile-first, con vista offline de un viaje activo y 
 ## 1. Objetivo
 
 Una app web simple para planear y consultar itinerarios de viaje:
+
 - Pantalla inicial con tarjetas de todos los viajes.
 - Detalle de viaje con 3 pestañas inferiores estilo app móvil: **Principal**, **Actividades**, **Estadía**.
 - Datos centralizados en una base de datos compartida (Supabase), sin login: las 2 personas ven y editan lo mismo.
@@ -14,6 +15,7 @@ Una app web simple para planear y consultar itinerarios de viaje:
 ## 2. Alcance del MVP
 
 **Incluido:**
+
 - CRUD de viajes: nombre, URL de imagen de portada, fecha/hora de inicio, fecha/hora de fin.
 - CRUD de actividades por viaje: descripción, fecha/hora de inicio, fecha/hora de fin. Vista tipo horario/calendario vertical, ordenada cronológicamente.
 - CRUD de estadías por viaje: nombre/lugar, checkin y checkout (rango de fechas, puede cubrir varias noches). Vista superior con los días del viaje en verde (cubiertos) o rojo (sin estadía).
@@ -23,6 +25,7 @@ Una app web simple para planear y consultar itinerarios de viaje:
 - Responsive, prioridad mobile.
 
 **Fuera del MVP, pero contemplado en el diseño de datos para no bloquear el futuro:**
+
 - Presupuesto / gastos del viaje.
 - Checklist de equipaje.
 - Notas generales del viaje.
@@ -30,6 +33,7 @@ Una app web simple para planear y consultar itinerarios de viaje:
 Estas tres se dejan como **tablas independientes futuras** relacionadas por `trip_id`, no se construyen ahora (evitar sobre-ingeniería), pero el modelo (UUIDs, relaciones simples) permite añadirlas sin romper nada existente.
 
 **Explícitamente fuera de alcance:**
+
 - Autenticación / usuarios / permisos.
 - Sincronización en tiempo real o resolución de conflictos.
 - Edición offline.
@@ -38,18 +42,18 @@ Estas tres se dejan como **tablas independientes futuras** relacionadas por `tri
 
 ## 3. Stack tecnológico
 
-| Capa | Elección | Motivo |
-|---|---|---|
-| Framework | React + Vite + TypeScript | Compila a estático para GitHub Pages, ecosistema maduro, buen soporte PWA. |
-| Estilos | Tailwind CSS | Rápido para maquetar UI mobile (tabs, FAB, cards) de forma consistente. |
-| Ruteo | React Router (modo estático) | Navegación entre Home / Detalle de viaje / pestañas. |
-| Iconografía | `lucide-react` | Pack de iconos gratuito (MIT), tree-shakeable, estética minimalista consistente con Tailwind. |
+| Capa             | Elección                          | Motivo                                                                                                   |
+| ---------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Framework        | React + Vite + TypeScript         | Compila a estático para GitHub Pages, ecosistema maduro, buen soporte PWA.                               |
+| Estilos          | Tailwind CSS                      | Rápido para maquetar UI mobile (tabs, FAB, cards) de forma consistente.                                  |
+| Ruteo            | React Router (modo estático)      | Navegación entre Home / Detalle de viaje / pestañas.                                                     |
+| Iconografía      | `lucide-react`                    | Pack de iconos gratuito (MIT), tree-shakeable, estética minimalista consistente con Tailwind.            |
 | Backend de datos | Supabase (Postgres), **sin auth** | Base de datos centralizada real, gratis en el tier necesario para este uso, API REST/JS lista para usar. |
-| Cache offline | IndexedDB vía librería `idb` | Estándar del navegador, soporta el modelo de "1 viaje completo + índice liviano". |
-| PWA | `vite-plugin-pwa` (Workbox) | Manifest + service worker para instalar la app y cachear assets estáticos. |
-| Fechas | `date-fns` (o similar) | Manejo de rangos de fechas, timezones, formateo. |
-| Despliegue | GitHub Actions → GitHub Pages | Deploy automático en cada push a `main`, sin pasos manuales. |
-| Testing | Ninguno en v1 | Decisión explícita: priorizar velocidad, añadir después si el proyecto crece. |
+| Cache offline    | IndexedDB vía librería `idb`      | Estándar del navegador, soporta el modelo de "1 viaje completo + índice liviano".                        |
+| PWA              | `vite-plugin-pwa` (Workbox)       | Manifest + service worker para instalar la app y cachear assets estáticos.                               |
+| Fechas           | `date-fns` (o similar)            | Manejo de rangos de fechas, timezones, formateo.                                                         |
+| Despliegue       | GitHub Actions → GitHub Pages     | Deploy automático en cada push a `main`, sin pasos manuales.                                             |
+| Testing          | Ninguno en v1                     | Decisión explícita: priorizar velocidad, añadir después si el proyecto crece.                            |
 
 No se usa gestor de estado global pesado (Redux, etc.) — con hooks de React + un cliente Supabase + el wrapper de IndexedDB es suficiente para el tamaño de esta app.
 
@@ -163,9 +167,10 @@ Al llegar a un ítem ⏸, el agente se detiene, explica con claridad qué hay qu
 Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 0 — Setup
+
 - [x] 🤖 Scaffold del proyecto (Vite + React + TS)
 - [x] 🤖 Configurar Tailwind CSS
-- [ ] 🤖 Configurar ESLint + Prettier
+- [x] 🤖 Configurar ESLint + Prettier
 - [ ] 🤖 Crear estructura de carpetas (`src/lib`, `src/data`, `src/hooks`, `src/components`, `src/routes`)
 - [ ] 🤖 Instalar `lucide-react`
 - [ ] ⏸ Crear cuenta en Supabase (si no existe) y generar un token de acceso (Personal Access Token o sesión de `supabase login` vía CLI); compartirlo con el agente
@@ -177,47 +182,58 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - [ ] 🤖 Configuración base de `vite-plugin-pwa`
 
 ### Fase 1 — Capa de datos
+
 - [ ] 🤖 Cliente Supabase (`lib/supabase.ts`)
 - [ ] 🤖 Tipos TS de Trip/Activity/Lodging
 - [ ] 🤖 Funciones CRUD (`data/trips.ts`, `data/activities.ts`, `data/lodgings.ts`)
 - [ ] 🤖 Wrapper de IndexedDB (`lib/idb.ts`)
 
 ### Fase 2 — Home
+
 - [ ] 🤖 Listado de cards responsive + estados de carga/offline/vacío
 - [ ] ⏸ Revisar visualmente el Home y dar feedback de diseño
 
 ### Fase 3 — Shell del detalle de viaje
+
 - [ ] 🤖 Ruteo por viaje, bottom tab bar, layout mobile-first
 
 ### Fase 4 — Pestaña Principal
+
 - [ ] 🤖 Formulario crear/editar datos base del viaje
 - [ ] ⏸ Revisar y dar feedback
 
 ### Fase 5 — Pestaña Actividades
+
 - [ ] 🤖 Alta de actividades + vista timeline
 - [ ] ⏸ Revisar y dar feedback
 
 ### Fase 6 — Pestaña Estadía
+
 - [ ] 🤖 Franja de días coloreados + alta/listado de estadías
 - [ ] ⏸ Revisar y dar feedback
 
 ### Fase 7 — Sincronización offline
+
 - [ ] 🤖 FAB de sincronizar, descarga completa con reemplazo de cache, indicadores de estado
 - [ ] ⏸ Probar el flujo offline en un celular real (modo avión + navegar)
 
 ### Fase 8 — PWA
+
 - [ ] 🤖 Manifest, íconos (192/512/maskable), service worker de assets
 - [ ] ⏸ Probar instalación de la PWA en un celular real
 
 ### Fase 9 — Pulido
+
 - [ ] 🤖 Validaciones de formularios, manejo de errores, accesibilidad básica, ajustes responsive
 - [ ] ⏸ Prueba manual completa en un celular real
 
 ### Fase 10 — Despliegue final
+
 - [ ] 🤖 Push a `main` (dispara el deploy automático)
 - [ ] ⏸ Verificar la app en la URL pública de GitHub Pages (smoke test)
 
 ### Fase 11 — Futuro (fuera del MVP)
+
 - [ ] Presupuesto/gastos, checklist de equipaje, notas generales — no se agenda todavía
 
 ## 10. Despliegue
@@ -250,10 +266,12 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ## 13. Decisiones confirmadas y pendientes
 
 **Confirmado:**
+
 - Pack de iconos: `lucide-react`.
 - Automatización de Supabase: se le da al agente un token de acceso (Supabase CLI/Management API) para crear el proyecto, las tablas y las políticas RLS de forma autónoma (🤖, ver checklist §9).
 - Flujo de git: push directo a `main` en cada avance (el deploy se dispara automáticamente en cada push).
 - Diseño visual: fondo "humo" claro, sin modo oscuro en el MVP, iconos agrupados por color según sección funcional (ver §12).
 
 **Pendiente:**
+
 - Detalles de UX: ¿se pide confirmación antes de borrar un viaje/actividad/estadía?, ¿qué se muestra si la URL de imagen de portada está rota?, ¿qué se muestra en el Home cuando todavía no hay ningún viaje creado (estado vacío)?
