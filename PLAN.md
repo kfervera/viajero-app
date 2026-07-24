@@ -178,8 +178,8 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - [x] 🤖 Obtener la URL y anon key del proyecto creado; crear `.env` local (no versionado) y `.env.example`
 - [x] ⏸ Configurar los secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en GitHub (Settings → Secrets and variables → Actions)
 - [x] 🤖 Crear workflow de GitHub Actions (build + deploy a Pages)
-- [ ] ⏸ Habilitar GitHub Pages en Settings → Pages (Source: GitHub Actions)
-- [ ] 🤖 Configuración base de `vite-plugin-pwa`
+- [x] ⏸ Habilitar GitHub Pages en Settings → Pages (Source: GitHub Actions)
+- [x] 🤖 Configuración base de `vite-plugin-pwa`
 
 ### Fase 1 — Capa de datos
 
