@@ -23,8 +23,20 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#f5f5f4',
         theme_color: '#f5f5f4',
-        // Íconos (192/512/maskable) se agregan en la Fase 8, ver PLAN.md.
-        icons: [],
+        icons: [
+          {
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
       },
       workbox: {
         // Solo assets estáticos del build; los datos de Supabase se cachean

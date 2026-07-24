@@ -242,11 +242,11 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ### Fase 7 — Sincronización offline
 
 - [x] 🤖 FAB de sincronizar, descarga completa con reemplazo de cache, indicadores de estado
-- [ ] ⏸ Probar el flujo offline en un celular real (modo avión + navegar)
+- [x] ⏸ Probar el flujo offline en un celular real (modo avión + navegar)
 
 ### Fase 8 — PWA
 
-- [ ] 🤖 Manifest, íconos (192/512/maskable), service worker de assets
+- [x] 🤖 Manifest, íconos (192/512/maskable), service worker de assets
 - [ ] ⏸ Probar instalación de la PWA en un celular real
 
 ### Fase 9 — Pulido
@@ -319,6 +319,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Lectura del viaje activo centralizada en `hooks/useActiveTrip.ts`: trip + activities + lodgings se cargan una sola vez en `TripDetail` y se comparten por contexto a las 3 pestañas (antes Actividades y Estadía repetían su propio fetch). Si el fetch online falla o no hay conexión, cae a `active_trip_cache` solo si coincide con el `trip_id` abierto; si no coincide, pantalla de "no disponible sin conexión, sincronízalo primero" (sin header ni tabs, igual que el estado de error existente).
 - FAB de sincronizar (`components/SyncFab.tsx`) con indicador de estado inline en el propio ícono (descargar → girando mientras sincroniza → check de éxito o alerta de error, 2 seg y vuelve a reposo); deshabilitado sin conexión. Banner ámbar debajo del header con la fecha/hora de la última sincronización cuando el viaje se está viendo desde cache.
 - Home: el viaje con copia sincronizada (`active_trip_cache`) siempre aparece primero en la lista, esté o no offline, y su card muestra una insignia circular ámbar con check (mismo acento que el FAB) para identificarlo de un vistazo.
+- Ícono de la app: cuadrado sky-600 (color de Principal/botones primarios) con el ícono `Luggage` de lucide-react en blanco, centrado con padding amplio (ícono al ~50% del lienzo) para que la misma imagen sirva como `any` y `maskable` sin generar variantes separadas — favicon con menos padding para que se lea nítido en el tamaño chico de la pestaña.
 
 **Pendiente:**
 
