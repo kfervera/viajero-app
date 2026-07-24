@@ -17,7 +17,7 @@ Una app web simple para planear y consultar itinerarios de viaje:
 **Incluido:**
 
 - CRUD de viajes: nombre, URL de imagen de portada, fecha/hora de inicio, fecha/hora de fin.
-- CRUD de actividades por viaje: summary (título corto), descripción, lugar, URL de mapa, agencia, número de contacto, notas (una o más), fecha/hora de inicio, fecha/hora de fin. Vista tipo horario/calendario vertical (timeline), ordenada cronológicamente — ver detalle de la UI en §6. (Estas notas son propias de cada actividad, no confundir con las "notas generales del viaje" que siguen fuera del MVP, ver abajo.)
+- CRUD de actividades por viaje: summary (título corto), descripción, lugar/agencia (mismo campo de texto; la etiqueta cambia a "Agencia" si la categoría es Transporte, "Lugar" en el resto), categoría/subcategoría, URL de mapa, número de contacto, notas (una o más), evidencias (una o más URLs), fecha/hora de inicio, duración. Vista tipo horario/calendario vertical (timeline), ordenada cronológicamente — ver detalle de la UI en §6. (Estas notas son propias de cada actividad, no confundir con las "notas generales del viaje" que siguen fuera del MVP, ver abajo.)
 - CRUD de estadías por viaje: nombre/lugar, checkin y checkout (rango de fechas, puede cubrir varias noches). Vista superior con los días del viaje en verde (cubiertos) o rojo (sin estadía).
 - Sincronización manual (botón flotante) que descarga un viaje completo para verlo offline, en modo solo lectura.
 - Pantalla inicial navegable offline con metadatos ligeros de todos los viajes (nombre, imagen, fechas).
@@ -87,9 +87,8 @@ activities
   category          text, nullable  -- ver taxonomía fija en §6
   subcategory       text, nullable  -- ícono de la subcategoría se ve en la card
   description       text, nullable  -- detalle largo, se ve al expandir la card
-  place             text, nullable  -- lugar
+  place             text, nullable  -- lugar o agencia (mismo campo; el form lo etiqueta según category)
   map_url           text, nullable  -- si existe, ícono de mapa en la card (abre el link)
-  agency            text, nullable  -- agencia/operador
   phone_number      text, nullable  -- si existe, ícono de WhatsApp -> wa.me/{numero}
   notes             text[], default '{}'  -- una o más notas libres de esta actividad
   evidence_urls     text[], default '{}'  -- una o más URLs (ej. archivos en Drive), lista de links al expandir la card
@@ -150,7 +149,7 @@ Modelo confirmado — simple y de solo lectura offline:
 
 - **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin. Ícono sugerido: casa/mapa. Al crear un viaje nuevo (`/viajes/nuevo`), incluye un botón "Cancelar" junto al de guardar que vuelve al Home sin crear nada; ese botón no aparece al editar un viaje ya existente.
 - **Pestaña Actividades:** el formulario **no está siempre visible** — arranca oculto y aparece un botón "Nueva actividad"; al tocarlo (o al tocar el lápiz de una card existente) se abre el formulario para crear/editar. Al guardar o cancelar, el formulario se vuelve a ocultar. Debajo (o en su lugar, si el formulario está cerrado) va el timeline vertical, agrupado por día y ordenado cronológicamente.
-  - **Campos del formulario:** summary, categoría + subcategoría (selects encadenados, ver taxonomía abajo), inicio (fecha/hora), duración (texto tipo `1h 25m`, la hora de fin se calcula sumando la duración al inicio — no se edita la fecha de fin directamente), lugar, URL de mapa, agencia, número, descripción, notas (una o más), evidencias (una o más URLs, ej. links a archivos de Drive).
+  - **Campos del formulario:** summary, categoría + subcategoría (selects encadenados, ver taxonomía abajo), inicio (fecha/hora), duración (texto tipo `1h 25m`, la hora de fin se calcula sumando la duración al inicio — no se edita la fecha de fin directamente), lugar/agencia (un solo campo de texto — la etiqueta es "Agencia" si la categoría es Transporte, "Lugar" en cualquier otro caso), URL de mapa, número, descripción, notas (una o más), evidencias (una o más URLs, ej. links a archivos de Drive).
   - **Duración:** formato libre con segmentos `Xh`/`Xm` en cualquier combinación (`1h 25m`, `45m`, `2h`); si no se puede interpretar o da 0, error de validación. Al editar una actividad existente, la duración se recalcula y se muestra a partir de `end_datetime - start_datetime` guardados.
   - **Taxonomía de categorías** (fija en código, no editable por la persona — evita categorías/íconos huérfanos):
     - Transporte → Vuelo (✈️), Bus (🚌), Auto/Traslado (🚗), Tren (🚆), Barco (🚢)
@@ -161,7 +160,7 @@ Modelo confirmado — simple y de solo lectura offline:
     - Otro → General (✨)
     (íconos reales de `lucide-react`, acá solo como referencia visual del PLAN)
   - **Colapsada:** ícono de la subcategoría (si tiene) a la izquierda, horario, summary, lugar (subtítulo chico), e íconos minimalistas al costado — mapa (si hay `map_url`, abre el link) y WhatsApp (si hay `phone_number`, abre `wa.me/{numero}`). Un ícono de lápiz, siempre visible (colapsada o expandida), abre esa actividad en el formulario para editarla.
-  - **Expandida** (al tocar la card): además muestra descripción, agencia, notas y la lista de evidencias (links clickeables que abren cada URL).
+  - **Expandida** (al tocar la card): además muestra descripción, notas y la lista de evidencias (links clickeables que abren cada URL). Lugar/agencia ya se ve colapsada, no se repite acá.
   - Ícono sugerido para la pestaña: calendario/lista, tono `teal-600` — mismo tono para los íconos de acción (mapa/WhatsApp/lápiz) dentro de cada card.
   - Supuesto: el número se concatena tal cual a `wa.me/{numero}`, se asume formato internacional sin símbolos (ej. `5491122334455`) — no se valida el formato.
 - **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout). Ícono sugerido: cama/edificio.
@@ -302,14 +301,16 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Header del detalle de viaje: barra compartida arriba de las 3 pestañas con ícono de grilla (`lucide-react` `LayoutGrid`, vuelve al Home) + nombre del viaje; se sacaron los títulos duplicados que tenía cada pestaña por separado.
 - Pestaña por defecto al entrar/crear un viaje: Actividades (no Principal).
 - Botón "Cancelar" en el formulario de viaje nuevo, junto al de guardar, solo cuando es un viaje nuevo (no aparece al editar uno existente).
-- Modelo de actividades ampliado: summary, descripción, lugar, URL de mapa, agencia, número y notas (una o más, columna `text[]` en vez de tabla aparte — se evita una tabla hija para no sumar complejidad por notas simples sin metadata propia).
+- Modelo de actividades ampliado: summary, descripción, lugar/agencia, URL de mapa, número y notas (una o más, columna `text[]` en vez de tabla aparte — se evita una tabla hija para no sumar complejidad por notas simples sin metadata propia).
 - Edición de actividades reutiliza el mismo formulario de "agregar" (sin ruta ni pantalla nueva por actividad): el ícono de lápiz en cada card carga esa actividad en el formulario de arriba.
-- Timeline de actividades con card colapsable/expandible: colapsada muestra summary + lugar + horario + íconos de mapa/WhatsApp; expandida (al tocar) suma descripción, agencia y notas.
+- Timeline de actividades con card colapsable/expandible: colapsada muestra summary + lugar/agencia + horario + íconos de mapa/WhatsApp; expandida (al tocar) suma descripción, notas y evidencias.
 - Formulario de actividades oculto por defecto: botón "Nueva actividad" lo abre; se cierra al guardar o cancelar.
 - Duración en vez de fecha de fin en el formulario de actividades (texto tipo `1h 25m`, calcula `end_datetime`); se evitaba el desborde de los dos campos de fecha lado a lado en mobile.
 - Categoría + subcategoría de actividad: taxonomía fija en código (no editable por la persona) con ícono por subcategoría, ver detalle en §6. Se eligió fija (selects encadenados) en vez de texto libre para que el ícono en la card nunca quede huérfano.
 - Campo "evidencias": lista de URLs (ej. archivos subidos a Drive por la persona), mismo patrón que notas; se muestran como links clickeables al expandir la card.
 - Versionado con semver en `package.json`, mostrado en un footer chico del Home (ver §8).
+- Lugar y agencia unificados en un solo campo (`place`): el formulario lo etiqueta "Agencia" si la categoría es Transporte, "Lugar" en el resto — mismo tipo de dato, no hacía falta columna aparte.
+- Estadía: mismo patrón de formulario oculto + botón ("Nueva estadía") que Actividades, por consistencia. Sin botón de borrar todavía (ver "Pendiente").
 
 **Pendiente:**
 

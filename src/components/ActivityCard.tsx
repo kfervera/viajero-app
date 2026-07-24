@@ -26,7 +26,6 @@ export function ActivityCard({
 
   const hasExpandedContent =
     activity.description ||
-    activity.agency ||
     activity.notes.length > 0 ||
     activity.evidence_urls.length > 0
 
@@ -88,12 +87,6 @@ export function ActivityCard({
       {expanded && hasExpandedContent && (
         <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 text-sm text-slate-600">
           {activity.description && <p>{activity.description}</p>}
-          {activity.agency && (
-            <p>
-              <span className="font-medium text-slate-700">Agencia: </span>
-              {activity.agency}
-            </p>
-          )}
           {activity.notes.length > 0 && (
             <ul className="list-disc pl-4">
               {activity.notes.map((note, index) => (

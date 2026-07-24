@@ -32,7 +32,6 @@ export function ActivityForm({
   const [subcategory, setSubcategory] = useState(activity?.subcategory ?? '')
   const [place, setPlace] = useState(activity?.place ?? '')
   const [mapUrl, setMapUrl] = useState(activity?.map_url ?? '')
-  const [agency, setAgency] = useState(activity?.agency ?? '')
   const [phoneNumber, setPhoneNumber] = useState(activity?.phone_number ?? '')
   const [description, setDescription] = useState(activity?.description ?? '')
   const [notes, setNotes] = useState<string[]>(activity?.notes ?? [])
@@ -94,7 +93,6 @@ export function ActivityForm({
       description: description.trim() === '' ? null : description.trim(),
       place: place.trim() === '' ? null : place.trim(),
       map_url: mapUrl.trim() === '' ? null : mapUrl.trim(),
-      agency: agency.trim() === '' ? null : agency.trim(),
       phone_number: phoneNumber.trim() === '' ? null : phoneNumber.trim(),
       notes: notes.map((note) => note.trim()).filter((note) => note !== ''),
       evidence_urls: evidenceUrls
@@ -216,12 +214,15 @@ export function ActivityForm({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-700">Lugar</span>
+        <span className="text-sm font-medium text-slate-700">
+          {category === 'transport' ? 'Agencia' : 'Lugar'}
+        </span>
         <input
           type="text"
           value={place}
           onChange={(e) => setPlace(e.target.value)}
           disabled={formDisabled}
+          placeholder={category === 'transport' ? 'Ej. LATAM, Booking.com' : 'Ej. Plaza principal'}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
         />
       </label>
@@ -235,17 +236,6 @@ export function ActivityForm({
           disabled={formDisabled}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
           placeholder="https://maps.google.com/…"
-        />
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-700">Agencia</span>
-        <input
-          type="text"
-          value={agency}
-          onChange={(e) => setAgency(e.target.value)}
-          disabled={formDisabled}
-          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
         />
       </label>
 

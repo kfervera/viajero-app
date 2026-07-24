@@ -17,7 +17,6 @@ export interface Activity {
   description: string | null
   place: string | null
   map_url: string | null
-  agency: string | null
   phone_number: string | null
   notes: string[]
   evidence_urls: string[]
