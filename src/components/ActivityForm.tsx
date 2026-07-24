@@ -5,7 +5,7 @@ import { createActivity, updateActivity } from '../data/activities'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { ACTIVITY_CATEGORIES, getSubcategoriesFor } from '../lib/activityCategories'
 import { formatMinutesAsDuration, parseDurationToMinutes } from '../lib/duration'
-import type { Activity } from '../lib/types'
+import type { Activity, EvidenceItem } from '../lib/types'
 
 function toDatetimeLocal(isoString: string): string {
   return format(new Date(isoString), "yyyy-MM-dd'T'HH:mm")
@@ -35,9 +35,7 @@ export function ActivityForm({
   const [phoneNumber, setPhoneNumber] = useState(activity?.phone_number ?? '')
   const [description, setDescription] = useState(activity?.description ?? '')
   const [notes, setNotes] = useState<string[]>(activity?.notes ?? [])
-  const [evidenceUrls, setEvidenceUrls] = useState<string[]>(
-    activity?.evidence_urls ?? [],
-  )
+  const [evidence, setEvidence] = useState<EvidenceItem[]>(activity?.evidence ?? [])
   const [startDatetime, setStartDatetime] = useState(
     activity ? toDatetimeLocal(activity.start_datetime) : '',
   )
@@ -64,12 +62,16 @@ export function ActivityForm({
     setNotes((prev) => prev.filter((_, i) => i !== index))
   }
 
-  function updateEvidence(index: number, value: string) {
-    setEvidenceUrls((prev) => prev.map((url, i) => (i === index ? value : url)))
+  function updateEvidenceName(index: number, name: string) {
+    setEvidence((prev) => prev.map((item, i) => (i === index ? { ...item, name } : item)))
+  }
+
+  function updateEvidenceUrl(index: number, url: string) {
+    setEvidence((prev) => prev.map((item, i) => (i === index ? { ...item, url } : item)))
   }
 
   function removeEvidence(index: number) {
-    setEvidenceUrls((prev) => prev.filter((_, i) => i !== index))
+    setEvidence((prev) => prev.filter((_, i) => i !== index))
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -95,9 +97,9 @@ export function ActivityForm({
       map_url: mapUrl.trim() === '' ? null : mapUrl.trim(),
       phone_number: phoneNumber.trim() === '' ? null : phoneNumber.trim(),
       notes: notes.map((note) => note.trim()).filter((note) => note !== ''),
-      evidence_urls: evidenceUrls
-        .map((url) => url.trim())
-        .filter((url) => url !== ''),
+      evidence: evidence
+        .map((item) => ({ name: item.name.trim(), url: item.url.trim() }))
+        .filter((item) => item.url !== ''),
       start_datetime: start.toISOString(),
       end_datetime: end.toISOString(),
     }
@@ -297,22 +299,32 @@ export function ActivityForm({
 
       <div className="flex flex-col gap-2">
         <span className="text-sm font-medium text-slate-700">Evidencias</span>
-        {evidenceUrls.map((url, index) => (
-          <div key={index} className="flex gap-2">
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => updateEvidence(index, e.target.value)}
-              disabled={formDisabled}
-              className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
-              placeholder="https://drive.google.com/…"
-            />
+        {evidence.map((item, index) => (
+          <div key={index} className="flex gap-2 rounded-xl border border-slate-200 p-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <input
+                type="text"
+                value={item.name}
+                onChange={(e) => updateEvidenceName(index, e.target.value)}
+                disabled={formDisabled}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+                placeholder="Nombre (ej. Voucher del tour)"
+              />
+              <input
+                type="url"
+                value={item.url}
+                onChange={(e) => updateEvidenceUrl(index, e.target.value)}
+                disabled={formDisabled}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+                placeholder="https://drive.google.com/…"
+              />
+            </div>
             <button
               type="button"
               onClick={() => removeEvidence(index)}
               disabled={formDisabled}
               aria-label="Quitar evidencia"
-              className="text-slate-500"
+              className="self-start text-slate-500"
             >
               <X className="h-4 w-4" />
             </button>
@@ -320,7 +332,7 @@ export function ActivityForm({
         ))}
         <button
           type="button"
-          onClick={() => setEvidenceUrls((prev) => [...prev, ''])}
+          onClick={() => setEvidence((prev) => [...prev, { name: '', url: '' }])}
           disabled={formDisabled}
           className="flex items-center gap-1 self-start text-sm font-medium text-teal-600"
         >

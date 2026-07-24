@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { MapPin, MessageCircle, Pencil } from 'lucide-react'
+import { ExternalLink, MapPin, MessageCircle, Pencil } from 'lucide-react'
 import type { Lodging } from '../lib/types'
 
 interface LodgingCardProps {
@@ -26,6 +26,22 @@ export function LodgingCard({ lodging, onEdit }: LodgingCardProps) {
           <p className="text-sm text-slate-500">{range}</p>
           {lodging.notes && (
             <p className="mt-1 text-sm text-slate-600">{lodging.notes}</p>
+          )}
+          {lodging.evidence.length > 0 && (
+            <div className="mt-1 flex flex-col gap-1">
+              {lodging.evidence.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-sm text-indigo-600"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{item.name.trim() || 'Evidencia'}</span>
+                </a>
+              ))}
+            </div>
           )}
         </div>
 

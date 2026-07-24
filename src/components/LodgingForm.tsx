@@ -1,8 +1,8 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Plus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { createLodging, updateLodging } from '../data/lodgings'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
-import type { Lodging } from '../lib/types'
+import type { EvidenceItem, Lodging } from '../lib/types'
 
 interface LodgingFormProps {
   tripId: string
@@ -30,8 +30,21 @@ export function LodgingForm({
   const [mapUrl, setMapUrl] = useState(lodging?.map_url ?? '')
   const [phoneNumber, setPhoneNumber] = useState(lodging?.phone_number ?? '')
   const [notes, setNotes] = useState(lodging?.notes ?? '')
+  const [evidence, setEvidence] = useState<EvidenceItem[]>(lodging?.evidence ?? [])
   const [formError, setFormError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+
+  function updateEvidenceName(index: number, name: string) {
+    setEvidence((prev) => prev.map((item, i) => (i === index ? { ...item, name } : item)))
+  }
+
+  function updateEvidenceUrl(index: number, url: string) {
+    setEvidence((prev) => prev.map((item, i) => (i === index ? { ...item, url } : item)))
+  }
+
+  function removeEvidence(index: number) {
+    setEvidence((prev) => prev.filter((_, i) => i !== index))
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -55,6 +68,9 @@ export function LodgingForm({
       map_url: mapUrl.trim() === '' ? null : mapUrl.trim(),
       phone_number: phoneNumber.trim() === '' ? null : phoneNumber.trim(),
       notes: notes.trim() === '' ? null : notes.trim(),
+      evidence: evidence
+        .map((item) => ({ name: item.name.trim(), url: item.url.trim() }))
+        .filter((item) => item.url !== ''),
     }
 
     setIsSaving(true)
@@ -167,6 +183,50 @@ export function LodgingForm({
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
         />
       </label>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-slate-700">Evidencias</span>
+        {evidence.map((item, index) => (
+          <div key={index} className="flex gap-2 rounded-xl border border-slate-200 p-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <input
+                type="text"
+                value={item.name}
+                onChange={(e) => updateEvidenceName(index, e.target.value)}
+                disabled={formDisabled}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+                placeholder="Nombre (ej. Voucher de reserva)"
+              />
+              <input
+                type="url"
+                value={item.url}
+                onChange={(e) => updateEvidenceUrl(index, e.target.value)}
+                disabled={formDisabled}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+                placeholder="https://drive.google.com/…"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => removeEvidence(index)}
+              disabled={formDisabled}
+              aria-label="Quitar evidencia"
+              className="self-start text-slate-500"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setEvidence((prev) => [...prev, { name: '', url: '' }])}
+          disabled={formDisabled}
+          className="flex items-center gap-1 self-start text-sm font-medium text-indigo-600"
+        >
+          <Plus className="h-4 w-4" />
+          Agregar evidencia
+        </button>
+      </div>
 
       {formError && (
         <p role="alert" className="text-sm text-red-600">

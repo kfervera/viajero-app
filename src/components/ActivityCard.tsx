@@ -25,9 +25,7 @@ export function ActivityCard({
   const subcategoryIcon = getSubcategoryIcon(activity.subcategory)
 
   const hasExpandedContent =
-    activity.description ||
-    activity.notes.length > 0 ||
-    activity.evidence_urls.length > 0
+    activity.description || activity.notes.length > 0 || activity.evidence.length > 0
 
   return (
     <div className="rounded-xl bg-white p-3 shadow-sm">
@@ -94,19 +92,19 @@ export function ActivityCard({
               ))}
             </ul>
           )}
-          {activity.evidence_urls.length > 0 && (
+          {activity.evidence.length > 0 && (
             <div className="flex flex-col gap-1">
               <span className="font-medium text-slate-700">Evidencias</span>
-              {activity.evidence_urls.map((url, index) => (
+              {activity.evidence.map((item, index) => (
                 <a
                   key={index}
-                  href={url}
+                  href={item.url}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 text-teal-600"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
-                  Evidencia {index + 1}
+                  {item.name.trim() || 'Evidencia'}
                 </a>
               ))}
             </div>

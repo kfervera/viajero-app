@@ -1,3 +1,8 @@
+export interface EvidenceItem {
+  name: string
+  url: string
+}
+
 export interface Trip {
   id: string
   name: string
@@ -19,7 +24,7 @@ export interface Activity {
   map_url: string | null
   phone_number: string | null
   notes: string[]
-  evidence_urls: string[]
+  evidence: EvidenceItem[]
   start_datetime: string
   end_datetime: string
   created_at: string
@@ -35,6 +40,7 @@ export interface Lodging {
   map_url: string | null
   phone_number: string | null
   notes: string | null
+  evidence: EvidenceItem[]
   created_at: string
   updated_at: string
 }
