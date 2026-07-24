@@ -88,7 +88,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 3 — Evidencias con nombre y url
 
-- [ ] 🤖 Migración SQL (`supabase/migrations/`): en `activities`, reemplazar `evidence_urls text[]` por `evidence jsonb not null default '[]'`; en `lodgings`, agregar `evidence jsonb not null default '[]'`. Borra a propósito las evidencias existentes.
+- [x] 🤖 Migración SQL (`supabase/migrations/`): en `activities`, reemplazar `evidence_urls text[]` por `evidence jsonb not null default '[]'`; en `lodgings`, agregar `evidence jsonb not null default '[]'`. Borra a propósito las evidencias existentes.
 - [ ] ⏸ Aplicar la migración en Supabase: si hay un token de acceso disponible en ese momento, el agente la aplica con `supabase db push`; si no, la persona la corre manualmente en el SQL Editor del dashboard con el archivo ya generado.
 - [ ] 🤖 Actualizar `lib/types.ts` (`EvidenceItem`, `Activity.evidence`, `Lodging.evidence`) y las funciones CRUD de `data/activities.ts`/`data/lodgings.ts` si hace falta.
 - [ ] 🤖 `ActivityForm`: cada fila de evidencia pasa a tener dos campos (nombre + url); `ActivityCard` (vista expandida) muestra el nombre como texto del link.
