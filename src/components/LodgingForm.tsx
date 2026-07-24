@@ -23,6 +23,8 @@ export function LodgingForm({
   const [name, setName] = useState(lodging?.name ?? '')
   const [checkinDate, setCheckinDate] = useState(lodging?.checkin_date ?? '')
   const [checkoutDate, setCheckoutDate] = useState(lodging?.checkout_date ?? '')
+  const [mapUrl, setMapUrl] = useState(lodging?.map_url ?? '')
+  const [phoneNumber, setPhoneNumber] = useState(lodging?.phone_number ?? '')
   const [notes, setNotes] = useState(lodging?.notes ?? '')
   const [formError, setFormError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
@@ -41,6 +43,8 @@ export function LodgingForm({
       name,
       checkin_date: checkinDate,
       checkout_date: checkoutDate,
+      map_url: mapUrl.trim() === '' ? null : mapUrl.trim(),
+      phone_number: phoneNumber.trim() === '' ? null : phoneNumber.trim(),
       notes: notes.trim() === '' ? null : notes.trim(),
     }
 
@@ -113,6 +117,30 @@ export function LodgingForm({
           onChange={(e) => setCheckoutDate(e.target.value)}
           disabled={formDisabled}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-slate-700">URL de mapa</span>
+        <input
+          type="url"
+          value={mapUrl}
+          onChange={(e) => setMapUrl(e.target.value)}
+          disabled={formDisabled}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+          placeholder="https://maps.google.com/…"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-slate-700">Contacto</span>
+        <input
+          type="tel"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          disabled={formDisabled}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+          placeholder="Ej. 5491122334455"
         />
       </label>
 

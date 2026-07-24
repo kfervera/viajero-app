@@ -1,26 +1,37 @@
 import { eachDayOfInterval, format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import type { TransportNightEntry } from '../lib/transportNights'
 import type { Lodging, Trip } from '../lib/types'
 
 interface StayDaysStripProps {
   trip: Trip
   lodgings: Lodging[]
+  transportNightEntries: TransportNightEntry[]
 }
 
-export function StayDaysStrip({ trip, lodgings }: StayDaysStripProps) {
+export function StayDaysStrip({
+  trip,
+  lodgings,
+  transportNightEntries,
+}: StayDaysStripProps) {
   const days = eachDayOfInterval({
     start: new Date(trip.start_datetime),
     end: new Date(trip.end_datetime),
   })
 
+  const transportDayKeys = new Set(
+    transportNightEntries.flatMap((entry) => entry.dayKeys),
+  )
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2">
       {days.map((day) => {
         const dayKey = format(day, 'yyyy-MM-dd')
-        const covered = lodgings.some(
+        const coveredByLodging = lodgings.some(
           (lodging) =>
             lodging.checkin_date <= dayKey && dayKey <= lodging.checkout_date,
         )
+        const covered = coveredByLodging || transportDayKeys.has(dayKey)
 
         return (
           <div

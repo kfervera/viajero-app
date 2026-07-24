@@ -32,6 +32,8 @@ export interface Lodging {
   name: string
   checkin_date: string
   checkout_date: string
+  map_url: string | null
+  phone_number: string | null
   notes: string | null
   created_at: string
   updated_at: string

@@ -4,16 +4,24 @@ import { useOutletContext, useParams } from 'react-router-dom'
 import { LodgingCard } from '../../components/LodgingCard'
 import { LodgingForm } from '../../components/LodgingForm'
 import { StayDaysStrip } from '../../components/StayDaysStrip'
+import { TransportNightCard } from '../../components/TransportNightCard'
+import { listActivities } from '../../data/activities'
 import { listLodgings } from '../../data/lodgings'
-import type { Lodging } from '../../lib/types'
+import { getTransportNightEntries } from '../../lib/transportNights'
+import type { Activity, Lodging } from '../../lib/types'
 import type { TripDetailContext } from './index'
 
 type FormState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; lodging: Lodging }
+
+type StayListItem =
+  | { kind: 'lodging'; key: string; sortKey: string; lodging: Lodging }
+  | { kind: 'transport'; key: string; sortKey: string; entry: ReturnType<typeof getTransportNightEntries>[number] }
 
 export function Estadia() {
   const { tripId } = useParams()
   const { trip } = useOutletContext<TripDetailContext>()
   const [lodgings, setLodgings] = useState<Lodging[]>([])
+  const [activities, setActivities] = useState<Activity[]>([])
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [formState, setFormState] = useState<FormState>({ mode: 'closed' })
   const formRef = useRef<HTMLDivElement>(null)
@@ -23,10 +31,11 @@ export function Estadia() {
 
     let cancelled = false
 
-    listLodgings(tripId)
-      .then((data) => {
+    Promise.all([listLodgings(tripId), listActivities(tripId)])
+      .then(([lodgingsData, activitiesData]) => {
         if (!cancelled) {
-          setLodgings(data)
+          setLodgings(lodgingsData)
+          setActivities(activitiesData)
           setStatus('ready')
         }
       })
@@ -62,9 +71,34 @@ export function Estadia() {
 
   if (!tripId || !trip) return null
 
+  const transportNightEntries = getTransportNightEntries(activities)
+
+  const items: StayListItem[] = [
+    ...lodgings.map(
+      (lodging): StayListItem => ({
+        kind: 'lodging',
+        key: lodging.id,
+        sortKey: lodging.checkin_date,
+        lodging,
+      }),
+    ),
+    ...transportNightEntries.map(
+      (entry): StayListItem => ({
+        kind: 'transport',
+        key: entry.activity.id,
+        sortKey: entry.dayKeys[0],
+        entry,
+      }),
+    ),
+  ].sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <StayDaysStrip trip={trip} lodgings={lodgings} />
+      <StayDaysStrip
+        trip={trip}
+        lodgings={lodgings}
+        transportNightEntries={transportNightEntries}
+      />
 
       <div ref={formRef} className="mt-4">
         {formState.mode === 'closed' ? (
@@ -96,19 +130,23 @@ export function Estadia() {
             No se pudieron cargar las estadías. Revisa tu conexión.
           </p>
         )}
-        {status === 'ready' && lodgings.length === 0 && (
+        {status === 'ready' && items.length === 0 && (
           <p className="text-center text-slate-500">
             Todavía no hay estadías registradas.
           </p>
         )}
         {status === 'ready' &&
-          lodgings.map((lodging) => (
-            <LodgingCard
-              key={lodging.id}
-              lodging={lodging}
-              onEdit={() => handleEdit(lodging)}
-            />
-          ))}
+          items.map((item) =>
+            item.kind === 'lodging' ? (
+              <LodgingCard
+                key={item.key}
+                lodging={item.lodging}
+                onEdit={() => handleEdit(item.lodging)}
+              />
+            ) : (
+              <TransportNightCard key={item.key} entry={item.entry} />
+            ),
+          )}
       </div>
     </div>
   )

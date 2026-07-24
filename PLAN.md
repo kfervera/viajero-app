@@ -103,6 +103,8 @@ lodgings   (estadías)
   name              text
   checkin_date      date  (o timestamptz si luego se quiere hora exacta)
   checkout_date     date
+  map_url           text, nullable  -- si existe, ícono de mapa en la card (abre el link)
+  phone_number      text, nullable  -- si existe, ícono de WhatsApp -> wa.me/{numero}
   notes             text, nullable
   created_at        timestamptz, default now()
   updated_at        timestamptz
@@ -163,7 +165,8 @@ Modelo confirmado — simple y de solo lectura offline:
   - **Expandida** (al tocar la card): además muestra descripción, notas y la lista de evidencias (links clickeables que abren cada URL). Lugar/agencia ya se ve colapsada, no se repite acá.
   - Ícono sugerido para la pestaña: calendario/lista, tono `teal-600` — mismo tono para los íconos de acción (mapa/WhatsApp/lápiz) dentro de cada card.
   - Supuesto: el número se concatena tal cual a `wa.me/{numero}`, se asume formato internacional sin símbolos (ej. `5491122334455`) — no se valida el formato.
-- **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout). Ícono sugerido: cama/edificio.
+- **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista combinada (orden cronológico) de estadías registradas + noches de tránsito automáticas (ver abajo) + formulario para agregar una estadía nueva (mismo patrón oculto/"Nueva estadía" que Actividades). Campos de la estadía: nombre/lugar, checkin, checkout, URL de mapa, contacto, notas — mapa y contacto funcionan igual que en Actividades (ícono de mapa si hay `map_url`, ícono de WhatsApp `wa.me/{numero}` si hay `phone_number`). Ícono sugerido: cama/edificio.
+  - **Noches de tránsito automáticas:** si una actividad de categoría Transporte cruza de un día calendario a otro (fecha de fin > fecha de inicio, comparando solo fecha, no hora), esa noche ya cuenta como cubierta — no se registra nada en `lodgings`. Se pinta de verde en la franja de días y aparece una card (fondo verde suave, ícono de la subcategoría igual que en Actividades, sin botón de editar) mezclada cronológicamente con las estadías reales.
 - **FAB de sincronizar:** ícono de "descargar"/"refrescar" del mismo pack.
 
 ## 7. Seguridad y privacidad (nota importante)
@@ -311,6 +314,8 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Versionado con semver en `package.json`, mostrado en un footer chico del Home (ver §8).
 - Lugar y agencia unificados en un solo campo (`place`): el formulario lo etiqueta "Agencia" si la categoría es Transporte, "Lugar" en el resto — mismo tipo de dato, no hacía falta columna aparte.
 - Estadía: mismo patrón de formulario oculto + botón ("Nueva estadía") que Actividades, por consistencia. Sin botón de borrar todavía (ver "Pendiente").
+- Estadía: campos de mapa y contacto (WhatsApp) iguales a los de Actividades, mismos íconos y comportamiento.
+- Noches de tránsito automáticas: una actividad de Transporte que cruza de un día a otro (fin > inicio en fecha, no en hora) cubre esa noche en la franja de Estadía sin crear ningún registro en `lodgings` — se deriva en el cliente a partir de `activities` cada vez que se entra a la pestaña.
 
 **Pendiente:**
 

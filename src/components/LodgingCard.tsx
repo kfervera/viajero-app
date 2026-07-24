@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Pencil } from 'lucide-react'
+import { MapPin, MessageCircle, Pencil } from 'lucide-react'
 import type { Lodging } from '../lib/types'
 
 interface LodgingCardProps {
@@ -19,22 +19,49 @@ export function LodgingCard({ lodging, onEdit }: LodgingCardProps) {
   )}`
 
   return (
-    <div className="flex items-start justify-between gap-2 rounded-xl bg-white p-3 shadow-sm">
-      <div className="min-w-0 flex-1">
-        <p className="font-medium text-slate-800">{lodging.name}</p>
-        <p className="text-sm text-slate-500">{range}</p>
-        {lodging.notes && (
-          <p className="mt-1 text-sm text-slate-600">{lodging.notes}</p>
-        )}
+    <div className="rounded-xl bg-white p-3 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-slate-800">{lodging.name}</p>
+          <p className="text-sm text-slate-500">{range}</p>
+          {lodging.notes && (
+            <p className="mt-1 text-sm text-slate-600">{lodging.notes}</p>
+          )}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3 pt-0.5">
+          {lodging.map_url && (
+            <a
+              href={lodging.map_url}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Abrir mapa"
+              className="text-indigo-600"
+            >
+              <MapPin className="h-4 w-4" />
+            </a>
+          )}
+          {lodging.phone_number && (
+            <a
+              href={`https://wa.me/${lodging.phone_number}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Abrir WhatsApp"
+              className="text-indigo-600"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={onEdit}
+            aria-label="Editar estadía"
+            className="text-indigo-600"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        </div>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        aria-label="Editar estadía"
-        className="shrink-0 text-indigo-600"
-      >
-        <Pencil className="h-4 w-4" />
-      </button>
     </div>
   )
 }
