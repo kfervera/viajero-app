@@ -1,13 +1,25 @@
 import { useEffect, useState } from 'react'
 import { listTrips } from '../data/trips'
-import { getTripsIndex, setTripsIndex } from '../lib/idb'
+import { getActiveTripCache, getTripsIndex, setTripsIndex } from '../lib/idb'
 import type { TripIndexEntry } from '../lib/types'
 import { useOnlineStatus } from './useOnlineStatus'
 
 type TripsStatus = 'loading' | 'ready'
 
+// El viaje sincronizado va siempre primero, esté o no offline — es el que
+// tiene copia disponible sin conexión, conviene tenerlo a mano.
+function withSyncedFirst(trips: TripIndexEntry[], syncedTripId: string | null) {
+  if (!syncedTripId) return trips
+  return [...trips].sort((a, b) => {
+    if (a.id === syncedTripId) return -1
+    if (b.id === syncedTripId) return 1
+    return 0
+  })
+}
+
 export function useTrips() {
   const [trips, setTrips] = useState<TripIndexEntry[]>([])
+  const [syncedTripId, setSyncedTripId] = useState<string | null>(null)
   const [status, setStatus] = useState<TripsStatus>('loading')
   const isOnline = useOnlineStatus()
 
@@ -35,9 +47,13 @@ export function useTrips() {
         }
       }
 
-      const cached = await getTripsIndex()
+      const [cached, activeCache] = await Promise.all([
+        getTripsIndex(),
+        getActiveTripCache(),
+      ])
       if (!cancelled) {
-        setTrips(cached)
+        setTrips(withSyncedFirst(cached, activeCache?.trip_id ?? null))
+        setSyncedTripId(activeCache?.trip_id ?? null)
         setStatus('ready')
       }
     }
@@ -49,5 +65,5 @@ export function useTrips() {
     }
   }, [isOnline])
 
-  return { trips, status }
+  return { trips, status, syncedTripId }
 }

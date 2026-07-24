@@ -5,7 +5,7 @@ import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useTrips } from '../hooks/useTrips'
 
 export function Home() {
-  const { trips, status } = useTrips()
+  const { trips, status, syncedTripId } = useTrips()
   const isOnline = useOnlineStatus()
 
   return (
@@ -51,7 +51,7 @@ export function Home() {
       {status === 'ready' && trips.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {trips.map((trip) => (
-            <TripCard key={trip.id} trip={trip} />
+            <TripCard key={trip.id} trip={trip} isSynced={trip.id === syncedTripId} />
           ))}
         </div>
       )}
