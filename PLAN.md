@@ -1,5 +1,7 @@
 # Plan de desarrollo — Viajero App
 
+> **Estado: MVP completo (Fases 0–10 cerradas, v0.7.0 desplegado).** Este plan queda cerrado tal cual está. El trabajo futuro (fuera de este alcance) se documenta aparte en [`FASE-11.md`](./FASE-11.md).
+
 Itinerario de viajes, web, mobile-first, con vista offline de un viaje activo y datos centralizados compartidos entre 2 personas sin autenticación.
 
 ## 1. Objetivo
@@ -257,11 +259,13 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ### Fase 10 — Despliegue final
 
 - [x] 🤖 Push a `main` (dispara el deploy automático)
-- [ ] ⏸ Verificar la app en la URL pública de GitHub Pages (smoke test)
+- [x] ⏸ Verificar la app en la URL pública de GitHub Pages (smoke test)
+
+**El MVP (Fases 0–10) está completo y desplegado.**
 
 ### Fase 11 — Futuro (fuera del MVP)
 
-- [ ] Presupuesto/gastos, checklist de equipaje, notas generales — no se agenda todavía
+- [x] Presupuesto/gastos, checklist de equipaje, notas generales — documentadas como historias de usuario con recomendación de alcance en [`FASE-11.md`](./FASE-11.md), sin agendar ni implementar todavía. Se retoman una por vez cuando se decida arrancar.
 
 ## 10. Despliegue
 
@@ -313,7 +317,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Campo "evidencias": lista de URLs (ej. archivos subidos a Drive por la persona), mismo patrón que notas; se muestran como links clickeables al expandir la card.
 - Versionado con semver en `package.json`, mostrado en un footer chico del Home (ver §8).
 - Lugar y agencia unificados en un solo campo (`place`): el formulario lo etiqueta "Agencia" si la categoría es Transporte, "Lugar" en el resto — mismo tipo de dato, no hacía falta columna aparte.
-- Estadía: mismo patrón de formulario oculto + botón ("Nueva estadía") que Actividades, por consistencia. Sin botón de borrar todavía (ver "Pendiente").
+- Estadía: mismo patrón de formulario oculto + botón ("Nueva estadía") que Actividades, por consistencia. Sin botón de borrar todavía (ver [`FASE-11.md`](./FASE-11.md)).
 - Estadía: campos de mapa y contacto (WhatsApp) iguales a los de Actividades, mismos íconos y comportamiento.
 - Noches de tránsito automáticas: una actividad de Transporte que cruza de un día a otro (fin > inicio en fecha, no en hora) cubre esa noche en la franja de Estadía sin crear ningún registro en `lodgings` — se deriva en el cliente a partir de `activities` cada vez que se entra a la pestaña.
 - Lectura del viaje activo centralizada en `hooks/useActiveTrip.ts`: trip + activities + lodgings se cargan una sola vez en `TripDetail` y se comparten por contexto a las 3 pestañas (antes Actividades y Estadía repetían su propio fetch). Si el fetch online falla o no hay conexión, cae a `active_trip_cache` solo si coincide con el `trip_id` abierto; si no coincide, pantalla de "no disponible sin conexión, sincronízalo primero" (sin header ni tabs, igual que el estado de error existente).
@@ -322,6 +326,4 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Ícono de la app: cuadrado sky-600 (color de Principal/botones primarios) con el ícono `Luggage` de lucide-react en blanco, centrado con padding amplio (ícono al ~50% del lienzo) para que la misma imagen sirva como `any` y `maskable` sin generar variantes separadas — favicon con menos padding para que se lea nítido en el tamaño chico de la pestaña.
 - Pulido (Fase 9): `TripDetail` distingue "sin conexión, sincronízalo primero" (offline real, sin cache) de un error genuino con conexión activa (viaje inexistente o enlace roto) — antes ambos casos mostraban el mismo mensaje de "sin conexión", que era engañoso si en realidad había internet. Se corrigió también un desborde horizontal en 320px en el formulario de actividades (selects de categoría/subcategoría sin `min-w-0`), se subió el contraste de textos/íconos que estaban en `slate-400` (fallaban el mínimo de accesibilidad) a `slate-500`, y se agregó `role="alert"` a los mensajes de error de los 3 formularios.
 
-**Pendiente:**
-
-- Detalles de UX: ¿se pide confirmación antes de borrar un viaje/actividad/estadía?
+**Pendiente:** ninguna — el MVP está cerrado. El único cabo suelto (confirmación antes de borrar, ya que el MVP no llegó a tener UI de borrado) queda anotado junto con el resto del trabajo futuro en [`FASE-11.md`](./FASE-11.md).
