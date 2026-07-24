@@ -155,7 +155,11 @@ export function LodgingForm({
         />
       </label>
 
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      {formError && (
+        <p role="alert" className="text-sm text-red-600">
+          {formError}
+        </p>
+      )}
 
       <div className="flex gap-3">
         <button

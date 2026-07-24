@@ -247,11 +247,11 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ### Fase 8 — PWA
 
 - [x] 🤖 Manifest, íconos (192/512/maskable), service worker de assets
-- [ ] ⏸ Probar instalación de la PWA en un celular real
+- [x] ⏸ Probar instalación de la PWA en un celular real
 
 ### Fase 9 — Pulido
 
-- [ ] 🤖 Validaciones de formularios, manejo de errores, accesibilidad básica, ajustes responsive
+- [x] 🤖 Validaciones de formularios, manejo de errores, accesibilidad básica, ajustes responsive
 - [ ] ⏸ Prueba manual completa en un celular real
 
 ### Fase 10 — Despliegue final
@@ -320,6 +320,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - FAB de sincronizar (`components/SyncFab.tsx`) con indicador de estado inline en el propio ícono (descargar → girando mientras sincroniza → check de éxito o alerta de error, 2 seg y vuelve a reposo); deshabilitado sin conexión. Banner ámbar debajo del header con la fecha/hora de la última sincronización cuando el viaje se está viendo desde cache.
 - Home: el viaje con copia sincronizada (`active_trip_cache`) siempre aparece primero en la lista, esté o no offline, y su card muestra una insignia circular ámbar con check (mismo acento que el FAB) para identificarlo de un vistazo.
 - Ícono de la app: cuadrado sky-600 (color de Principal/botones primarios) con el ícono `Luggage` de lucide-react en blanco, centrado con padding amplio (ícono al ~50% del lienzo) para que la misma imagen sirva como `any` y `maskable` sin generar variantes separadas — favicon con menos padding para que se lea nítido en el tamaño chico de la pestaña.
+- Pulido (Fase 9): `TripDetail` distingue "sin conexión, sincronízalo primero" (offline real, sin cache) de un error genuino con conexión activa (viaje inexistente o enlace roto) — antes ambos casos mostraban el mismo mensaje de "sin conexión", que era engañoso si en realidad había internet. Se corrigió también un desborde horizontal en 320px en el formulario de actividades (selects de categoría/subcategoría sin `min-w-0`), se subió el contraste de textos/íconos que estaban en `slate-400` (fallaban el mínimo de accesibilidad) a `slate-500`, y se agregó `role="alert"` a los mensajes de error de los 3 formularios.
 
 **Pendiente:**
 

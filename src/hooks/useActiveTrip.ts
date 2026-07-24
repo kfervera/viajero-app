@@ -7,7 +7,7 @@ import { downloadTripForOffline } from '../lib/sync'
 import type { Activity, Lodging, Trip } from '../lib/types'
 import { useOnlineStatus } from './useOnlineStatus'
 
-type ActiveTripStatus = 'loading' | 'ready' | 'offline-unavailable'
+type ActiveTripStatus = 'loading' | 'ready' | 'offline-unavailable' | 'error'
 
 interface ActiveTripState {
   trip: Trip | null
@@ -46,6 +46,8 @@ export function useActiveTrip(tripId: string | undefined) {
     async function load() {
       if (!tripId) return
 
+      let onlineFetchFailed = false
+
       if (isOnline) {
         try {
           const [trip, activities, lodgings] = await Promise.all([
@@ -65,7 +67,10 @@ export function useActiveTrip(tripId: string | undefined) {
           }
           return
         } catch {
-          // Sin conexión real o falla de red: se sigue con el cache.
+          // Puede ser falta de conexión real (navigator.onLine no siempre
+          // acierta) o un error genuino (viaje inexistente, etc.) — se
+          // intenta el cache antes de decidir cuál mensaje mostrar.
+          onlineFetchFailed = true
         }
       }
 
@@ -82,7 +87,12 @@ export function useActiveTrip(tripId: string | undefined) {
           syncedAt: cached.synced_at,
         })
       } else {
-        setState((prev) => ({ ...prev, status: 'offline-unavailable' }))
+        // Si el navegador se reporta online y aun así falló, no es un
+        // problema de conexión — mostrar un error real, no "sin conexión".
+        setState((prev) => ({
+          ...prev,
+          status: onlineFetchFailed ? 'error' : 'offline-unavailable',
+        }))
       }
     }
 

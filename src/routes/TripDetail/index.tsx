@@ -64,6 +64,20 @@ function TripDetailContent({ tripId }: { tripId?: string }) {
     )
   }
 
+  if (status === 'error') {
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center gap-3 px-4 text-center">
+        <p className="text-slate-500">
+          No se pudo cargar este viaje. Puede que ya no exista o el enlace
+          esté mal escrito.
+        </p>
+        <Link to="/" className="font-medium text-sky-600">
+          Volver a mis viajes
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-svh pb-20">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3">

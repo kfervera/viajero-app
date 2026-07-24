@@ -149,7 +149,7 @@ export function ActivityForm({
       </label>
 
       <div className="flex gap-3">
-        <label className="flex flex-1 flex-col gap-1">
+        <label className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="text-sm font-medium text-slate-700">Categoría</span>
           <select
             value={category}
@@ -158,7 +158,7 @@ export function ActivityForm({
               setSubcategory('')
             }}
             disabled={formDisabled}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+            className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
           >
             <option value="">Sin categoría</option>
             {ACTIVITY_CATEGORIES.map((c) => (
@@ -168,7 +168,7 @@ export function ActivityForm({
             ))}
           </select>
         </label>
-        <label className="flex flex-1 flex-col gap-1">
+        <label className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="text-sm font-medium text-slate-700">
             Subcategoría
           </span>
@@ -176,7 +176,7 @@ export function ActivityForm({
             value={subcategory}
             onChange={(e) => setSubcategory(e.target.value)}
             disabled={formDisabled || subcategoryOptions.length === 0}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+            className="min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
           >
             <option value="">Sin subcategoría</option>
             {subcategoryOptions.map((s) => (
@@ -278,7 +278,7 @@ export function ActivityForm({
               onClick={() => removeNote(index)}
               disabled={formDisabled}
               aria-label="Quitar nota"
-              className="text-slate-400"
+              className="text-slate-500"
             >
               <X className="h-4 w-4" />
             </button>
@@ -312,7 +312,7 @@ export function ActivityForm({
               onClick={() => removeEvidence(index)}
               disabled={formDisabled}
               aria-label="Quitar evidencia"
-              className="text-slate-400"
+              className="text-slate-500"
             >
               <X className="h-4 w-4" />
             </button>
@@ -329,7 +329,11 @@ export function ActivityForm({
         </button>
       </div>
 
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      {formError && (
+        <p role="alert" className="text-sm text-red-600">
+          {formError}
+        </p>
+      )}
 
       <div className="flex gap-3">
         <button

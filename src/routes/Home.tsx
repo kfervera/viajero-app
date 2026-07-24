@@ -56,7 +56,7 @@ export function Home() {
         </div>
       )}
 
-      <footer className="mt-10 text-center text-xs text-slate-400">
+      <footer className="mt-10 text-center text-xs text-slate-500">
         v{__APP_VERSION__}
       </footer>
     </div>

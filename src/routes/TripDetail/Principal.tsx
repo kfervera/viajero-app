@@ -108,7 +108,7 @@ export function Principal() {
         {coverImageUrl.trim() !== '' && (
           <div className="h-40 w-full overflow-hidden rounded-xl bg-slate-100">
             {imageError ? (
-              <p className="flex h-full items-center justify-center px-4 text-center text-sm text-slate-400">
+              <p className="flex h-full items-center justify-center px-4 text-center text-sm text-slate-500">
                 No se pudo cargar la imagen. Revisa la URL.
               </p>
             ) : (
@@ -150,7 +150,11 @@ export function Principal() {
           />
         </label>
 
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
+        {formError && (
+          <p role="alert" className="text-sm text-red-600">
+            {formError}
+          </p>
+        )}
 
         <div className="mt-2 flex gap-3">
           {isNew && (
