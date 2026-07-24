@@ -183,10 +183,10 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 1 — Capa de datos
 
-- [ ] 🤖 Cliente Supabase (`lib/supabase.ts`)
-- [ ] 🤖 Tipos TS de Trip/Activity/Lodging
-- [ ] 🤖 Funciones CRUD (`data/trips.ts`, `data/activities.ts`, `data/lodgings.ts`)
-- [ ] 🤖 Wrapper de IndexedDB (`lib/idb.ts`)
+- [x] 🤖 Cliente Supabase (`lib/supabase.ts`)
+- [x] 🤖 Tipos TS de Trip/Activity/Lodging
+- [x] 🤖 Funciones CRUD (`data/trips.ts`, `data/activities.ts`, `data/lodgings.ts`)
+- [x] 🤖 Wrapper de IndexedDB (`lib/idb.ts`)
 
 ### Fase 2 — Home
 
