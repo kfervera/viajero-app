@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { LayoutGrid } from 'lucide-react'
+import { CalendarClock, LayoutGrid } from 'lucide-react'
 import { Link, Outlet, useParams } from 'react-router-dom'
 import { BottomTabBar } from '../../components/BottomTabBar'
 import { SyncFab } from '../../components/SyncFab'
@@ -91,6 +91,15 @@ function TripDetailContent({ tripId }: { tripId?: string }) {
         <h1 className="truncate font-medium text-slate-800">
           {trip ? trip.name : 'Nuevo viaje'}
         </h1>
+        {tripId && trip && (
+          <Link
+            to={`/viajes/${tripId}/horario`}
+            aria-label="Ver horario del viaje"
+            className="ml-auto shrink-0 text-slate-500"
+          >
+            <CalendarClock className="h-5 w-5" />
+          </Link>
+        )}
       </header>
 
       {isFromCache && syncedAt && (

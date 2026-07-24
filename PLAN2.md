@@ -104,10 +104,10 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 5 — Pantalla Horario
 
-- [ ] 🤖 Nueva ruta `/viajes/:tripId/horario` + ícono en el header del detalle de viaje que navega a ella.
-- [ ] 🤖 Componente de la vista (ej. `components/ScheduleGrid.tsx` + `routes/TripDetail/Horario.tsx`): columna angosta de fecha, columna de hora en franjas de 30 min (24 horas), columna de actividades con bloques posicionados por horario y alto proporcional a la duración; scroll continuo encadenando todos los días del viaje. Solo lectura.
-- [ ] 🤖 Si el viaje está en curso, hacer scroll automático hasta la hora actual al entrar.
-- [ ] ⏸ Revisar visualmente la pantalla Horario (viaje de varios días, actividades consecutivas/superpuestas) y dar feedback.
+- [x] 🤖 Nueva ruta `/viajes/:tripId/horario` + ícono en el header del detalle de viaje que navega a ella.
+- [x] 🤖 Componente de la vista (ej. `components/ScheduleGrid.tsx` + `routes/TripDetail/Horario.tsx`): columna angosta de fecha, columna de hora en franjas de 30 min (24 horas), columna de actividades con bloques posicionados por horario y alto proporcional a la duración; scroll continuo encadenando todos los días del viaje. Solo lectura.
+- [x] 🤖 Si el viaje está en curso, hacer scroll automático hasta la hora actual al entrar.
+- [x] ⏸ Revisar visualmente la pantalla Horario (viaje de varios días, actividades consecutivas/superpuestas) y dar feedback.
 
 ### Fase 6 — Pulido y despliegue final
 
