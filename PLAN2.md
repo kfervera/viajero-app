@@ -1,6 +1,6 @@
 # Plan 2 de desarrollo — Viajero App
 
-> **Estado: en curso.** Este plan es independiente de [`PLAN.md`](./PLAN.md) (MVP, cerrado en v0.7.0) y de [`FASE-11.md`](./FASE-11.md) (backlog de presupuesto/checklist/notas generales, sin agendar). Junta un conjunto de requerimientos nuevos pedidos sobre el MVP ya desplegado. Se rastrea con el mismo mecanismo de checklist + pausas que `PLAN.md` §8 — ver §6 de este documento.
+> **Estado: completo (Fases 1–6 cerradas, v0.13.0).** Este plan es independiente de [`PLAN.md`](./PLAN.md) (MVP, cerrado en v0.7.0) y de [`FASE-11.md`](./FASE-11.md) (backlog de presupuesto/checklist/notas generales, sin agendar). Junta un conjunto de requerimientos nuevos pedidos sobre el MVP ya desplegado. Se rastreó con el mismo mecanismo de checklist + pausas que `PLAN.md` §8 — ver §6 de este documento. La app todavía no está en un ambiente productivo/real, así que —por indicación explícita de la persona— las pausas ⏸ de revisión se autovalidaron con el agente (screenshots + pruebas contra datos reales en el dev server, incluida la Fase 6) en vez de bloquear en cada una por confirmación humana o prueba en dispositivo real.
 
 ## 1. Requerimientos de este plan
 
@@ -111,9 +111,9 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 6 — Pulido y despliegue final
 
-- [ ] 🤖 Revisión de accesibilidad/responsive de todo lo nuevo (semáforo, badge D/N, botones de borrado, Horario) en mobile.
-- [ ] 🤖 Subir versión en `package.json` y push a `main`.
-- [ ] ⏸ Prueba manual completa en un celular real, confirmando la versión en el footer del Home antes de dar el visto bueno final.
+- [x] 🤖 Revisión de accesibilidad/responsive de todo lo nuevo (semáforo, badge D/N, botones de borrado, Horario) en mobile. Se corrigió un contraste `slate-400` reintroducido en `ScheduleGrid` (mismo problema ya resuelto antes en `PLAN.md` Fase 9), se agregó texto accesible (`sr-only`) con el estado del semáforo para lectores de pantalla, y foco inicial + cierre con `Escape` en `ConfirmDialog`. Verificado sin desborde horizontal en 320px (Home, Principal, Horario).
+- [x] 🤖 Subir versión en `package.json` y push a `main`.
+- [x] ⏸ Prueba manual completa en un celular real, confirmando la versión en el footer del Home antes de dar el visto bueno final. **Omitida a pedido explícito de la persona**: la app no está en un ambiente productivo todavía, así que se autovalidó en su lugar con el dev server real (Supabase real, sin datos simulados) — queda pendiente una prueba en dispositivo físico cuando el proyecto pase a un estadio más cercano a producción.
 
 ## 8. Supuestos registrados
 

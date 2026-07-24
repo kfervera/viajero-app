@@ -19,6 +19,12 @@ const STATUS_COLOR: Record<TripTemporalStatus, string> = {
   future: 'bg-emerald-500',
 }
 
+const STATUS_LABEL: Record<TripTemporalStatus, string> = {
+  past: 'Viaje finalizado',
+  active: 'Viaje en curso',
+  future: 'Viaje futuro',
+}
+
 export function TripCard({
   trip,
   isSynced = false,
@@ -60,7 +66,10 @@ export function TripCard({
         )}
       </div>
       <div className="p-3">
-        <h2 className="truncate font-medium text-slate-800">{trip.name}</h2>
+        <h2 className="truncate font-medium text-slate-800">
+          {trip.name}
+          <span className="sr-only"> — {STATUS_LABEL[status]}</span>
+        </h2>
         <p className="text-sm text-slate-500">
           {dateRange} · {days}D {nights}N
         </p>

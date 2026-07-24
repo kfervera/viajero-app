@@ -52,7 +52,7 @@ export function ScheduleGrid({ trip, activities, now }: ScheduleGridProps) {
             className="flex border-t border-slate-200 first:border-t-0"
           >
             <div className="flex w-8 shrink-0 flex-col items-center justify-center border-r border-slate-200 py-1 text-center">
-              <span className="text-[10px] uppercase text-slate-400">
+              <span className="text-[10px] uppercase text-slate-500">
                 {format(day, 'EEE', { locale: es })}
               </span>
               <span className="text-sm font-semibold text-slate-700">{format(day, 'd')}</span>
@@ -64,7 +64,7 @@ export function ScheduleGrid({ trip, activities, now }: ScheduleGridProps) {
                   <div
                     key={label}
                     style={{ height: SLOT_HEIGHT_PX }}
-                    className="flex items-start justify-end border-b border-slate-100 pr-1 pt-0.5 text-[10px] text-slate-400"
+                    className="flex items-start justify-end border-b border-slate-100 pr-1 pt-0.5 text-[10px] text-slate-500"
                   >
                     {label}
                   </div>
