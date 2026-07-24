@@ -43,6 +43,7 @@ Estas tres se dejan como **tablas independientes futuras** relacionadas por `tri
 | Framework | React + Vite + TypeScript | Compila a estático para GitHub Pages, ecosistema maduro, buen soporte PWA. |
 | Estilos | Tailwind CSS | Rápido para maquetar UI mobile (tabs, FAB, cards) de forma consistente. |
 | Ruteo | React Router (modo estático) | Navegación entre Home / Detalle de viaje / pestañas. |
+| Iconografía | `lucide-react` | Pack de iconos gratuito (MIT), tree-shakeable, estética minimalista consistente con Tailwind. |
 | Backend de datos | Supabase (Postgres), **sin auth** | Base de datos centralizada real, gratis en el tier necesario para este uso, API REST/JS lista para usar. |
 | Cache offline | IndexedDB vía librería `idb` | Estándar del navegador, soporta el modelo de "1 viaje completo + índice liviano". |
 | PWA | `vite-plugin-pwa` (Workbox) | Manifest + service worker para instalar la app y cachear assets estáticos. |
@@ -51,6 +52,15 @@ Estas tres se dejan como **tablas independientes futuras** relacionadas por `tri
 | Testing | Ninguno en v1 | Decisión explícita: priorizar velocidad, añadir después si el proyecto crece. |
 
 No se usa gestor de estado global pesado (Redux, etc.) — con hooks de React + un cliente Supabase + el wrapper de IndexedDB es suficiente para el tamaño de esta app.
+
+### 3.1 Política de capa gratuita
+
+Todo el stack se elige para operar dentro de niveles gratuitos, sin tarjeta de crédito ni upgrades pagos:
+
+- **Supabase (plan Free):** 500MB de base de datos, 1GB de almacenamiento, 5GB de transferencia/mes — de sobra para 2 personas y datos que son solo texto (no se suben imágenes, solo URLs).
+- **GitHub Pages + GitHub Actions:** gratis para repos públicos (`kfervera/viajero-app` es público) — sin límite de minutos de Actions ni de banda ancha de Pages en repos públicos.
+- **Librerías npm:** todas de código abierto con licencia permisiva (MIT/ISC) — React, Vite, Tailwind, React Router, `idb`, `vite-plugin-pwa`, `date-fns` y el pack de iconos elegido.
+- No se introduce ningún servicio o librería de pago sin confirmarlo antes contigo. Si algún límite del tier gratuito llega a ser un problema real (poco probable con 2 usuarios), se evalúa en ese momento — no se sobre-diseña para una escala que no existe.
 
 ## 4. Modelo de datos
 
@@ -123,11 +133,12 @@ Modelo confirmado — simple y de solo lectura offline:
 
 **Home** — grid/lista de cards responsive (1 columna en celular, más columnas en pantallas anchas), cada card con imagen de fondo, nombre y fechas del viaje. Tap → detalle del viaje.
 
-**Detalle de viaje** — layout con bottom tab bar fija (estilo app móvil, iconos + etiquetas) y FAB de sincronizar flotando sobre la tab bar:
+**Detalle de viaje** — layout con bottom tab bar fija (estilo app móvil, iconos del pack elegido en §3 + etiquetas) y FAB de sincronizar flotando sobre la tab bar:
 
-- **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin.
-- **Pestaña Actividades:** formulario para agregar actividad (descripción, inicio, fin) + timeline vertical debajo, agrupado por día, ordenado cronológicamente.
-- **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout).
+- **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin. Ícono sugerido: casa/mapa.
+- **Pestaña Actividades:** formulario para agregar actividad (descripción, inicio, fin) + timeline vertical debajo, agrupado por día, ordenado cronológicamente. Ícono sugerido: calendario/lista.
+- **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout). Ícono sugerido: cama/edificio.
+- **FAB de sincronizar:** ícono de "descargar"/"refrescar" del mismo pack.
 
 ## 7. Seguridad y privacidad (nota importante)
 
@@ -138,29 +149,111 @@ Decisión del proyecto: sin autenticación, datos compartidos abiertamente entre
 - Nunca se usa la `service_role key` (la privada) en el frontend — solo la `anon key` pública, que es la diseñada para exponerse en clientes.
 - Recomendación mínima (sin añadir complejidad): no publicitar la URL de la página fuera de las 2 personas que la usan.
 
-## 8. Fases de desarrollo
+## 8. Flujo de trabajo con el agente
 
-0. **Setup:** scaffold Vite+React+TS, Tailwind, ESLint/Prettier, estructura de carpetas, proyecto Supabase (tablas + RLS), variables de entorno, workflow de GitHub Actions a Pages, config base de `vite-plugin-pwa`.
-1. **Capa de datos:** cliente Supabase, tipos TypeScript de las 3 tablas, funciones CRUD, wrapper de IndexedDB con los 2 stores.
-2. **Home:** listado de cards responsive, carga+cache de `trips_index`, estados de carga/offline/vacío.
-3. **Shell del detalle de viaje:** ruteo por viaje, bottom tab bar, layout mobile-first.
-4. **Pestaña Principal:** crear/editar datos base del viaje.
-5. **Pestaña Actividades:** alta de actividades + vista timeline.
-6. **Pestaña Estadía:** franja de días coloreados + alta/listado de estadías.
-7. **Sincronización offline:** FAB, descarga completa con reemplazo de cache, modo solo lectura offline, indicadores de estado y última sincronización.
-8. **PWA:** manifest, íconos, service worker de assets estáticos (Workbox).
-9. **Pulido:** validaciones de formularios, manejo de errores, accesibilidad básica, ajustes responsive, pruebas manuales en un celular real.
-10. **Despliegue final:** verificación en GitHub Pages, revisión de variables públicas, smoke test en producción.
-11. *(Futuro, fuera del MVP)*: presupuesto/gastos, checklist de equipaje, notas generales.
+El progreso se rastrea con el checklist de la sección 9, usando dos marcas:
 
-## 9. Despliegue
+- 🤖 **Agente:** el agente lo ejecuta de forma autónoma, sin esperar nada de la persona.
+- ⏸ **Pausa:** requiere una acción de la persona (crear un recurso externo, dar credenciales, revisar visualmente, probar en un dispositivo real, etc.) antes de poder continuar.
+
+Al llegar a un ítem ⏸, el agente se detiene, explica con claridad qué hay que hacer y por qué no lo puede hacer él mismo, deja commiteado y pusheado el avance hasta ese punto, y espera una confirmación explícita (ej. "listo", "continúa") para retomar el checklist. Reglas detalladas de commit/push están en el skill `viajero-dev` (`.claude/skills/viajero-dev/SKILL.md`).
+
+## 9. Checklist de seguimiento
+
+Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
+
+### Fase 0 — Setup
+- [ ] 🤖 Scaffold del proyecto (Vite + React + TS)
+- [ ] 🤖 Configurar Tailwind CSS
+- [ ] 🤖 Configurar ESLint + Prettier
+- [ ] 🤖 Crear estructura de carpetas (`src/lib`, `src/data`, `src/hooks`, `src/components`, `src/routes`)
+- [ ] 🤖 Instalar `lucide-react`
+- [ ] ⏸ Crear cuenta en Supabase (si no existe) y generar un token de acceso (Personal Access Token o sesión de `supabase login` vía CLI); compartirlo con el agente
+- [ ] 🤖 Crear el proyecto en Supabase, las tablas (`trips`, `activities`, `lodgings`) y las políticas RLS "allow all" para `anon` (vía Supabase CLI/Management API)
+- [ ] 🤖 Obtener la URL y anon key del proyecto creado; crear `.env` local (no versionado) y `.env.example`
+- [ ] ⏸ Configurar los secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en GitHub (Settings → Secrets and variables → Actions)
+- [ ] 🤖 Crear workflow de GitHub Actions (build + deploy a Pages)
+- [ ] ⏸ Habilitar GitHub Pages en Settings → Pages (Source: GitHub Actions)
+- [ ] 🤖 Configuración base de `vite-plugin-pwa`
+
+### Fase 1 — Capa de datos
+- [ ] 🤖 Cliente Supabase (`lib/supabase.ts`)
+- [ ] 🤖 Tipos TS de Trip/Activity/Lodging
+- [ ] 🤖 Funciones CRUD (`data/trips.ts`, `data/activities.ts`, `data/lodgings.ts`)
+- [ ] 🤖 Wrapper de IndexedDB (`lib/idb.ts`)
+
+### Fase 2 — Home
+- [ ] 🤖 Listado de cards responsive + estados de carga/offline/vacío
+- [ ] ⏸ Revisar visualmente el Home y dar feedback de diseño
+
+### Fase 3 — Shell del detalle de viaje
+- [ ] 🤖 Ruteo por viaje, bottom tab bar, layout mobile-first
+
+### Fase 4 — Pestaña Principal
+- [ ] 🤖 Formulario crear/editar datos base del viaje
+- [ ] ⏸ Revisar y dar feedback
+
+### Fase 5 — Pestaña Actividades
+- [ ] 🤖 Alta de actividades + vista timeline
+- [ ] ⏸ Revisar y dar feedback
+
+### Fase 6 — Pestaña Estadía
+- [ ] 🤖 Franja de días coloreados + alta/listado de estadías
+- [ ] ⏸ Revisar y dar feedback
+
+### Fase 7 — Sincronización offline
+- [ ] 🤖 FAB de sincronizar, descarga completa con reemplazo de cache, indicadores de estado
+- [ ] ⏸ Probar el flujo offline en un celular real (modo avión + navegar)
+
+### Fase 8 — PWA
+- [ ] 🤖 Manifest, íconos (192/512/maskable), service worker de assets
+- [ ] ⏸ Probar instalación de la PWA en un celular real
+
+### Fase 9 — Pulido
+- [ ] 🤖 Validaciones de formularios, manejo de errores, accesibilidad básica, ajustes responsive
+- [ ] ⏸ Prueba manual completa en un celular real
+
+### Fase 10 — Despliegue final
+- [ ] 🤖 Push a `main` (dispara el deploy automático)
+- [ ] ⏸ Verificar la app en la URL pública de GitHub Pages (smoke test)
+
+### Fase 11 — Futuro (fuera del MVP)
+- [ ] Presupuesto/gastos, checklist de equipaje, notas generales — no se agenda todavía
+
+## 10. Despliegue
 
 - Vite `base` configurado según el nombre del repo (`/<repo>/`) para que rutas y assets funcionen en GitHub Pages.
-- GitHub Actions: build en cada push a `main` → publica a la rama/entorno de Pages. Sin pasos manuales de por medio.
+- GitHub Actions: build en cada push a `main` → publica a la rama/entorno de Pages. Sin pasos manuales de por medio (salvo habilitar Pages una vez, ver checklist).
 - Variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` inyectadas en build time (son públicas por diseño, ver sección 7).
 
-## 10. Supuestos registrados
+## 11. Supuestos registrados
 
 - Bottom tabs se mantienen igual en desktop y mobile (no se cambia a sidebar en pantallas anchas), para mantener consistencia visual simple.
 - `checkin_date`/`checkout_date` de estadías se manejan como fecha (sin hora) — si luego se necesita hora exacta de checkin/checkout se puede migrar a `timestamptz` sin romper el resto del modelo.
 - Timezone: fechas/horas se guardan en UTC en Supabase y se muestran en la zona horaria local del navegador.
+
+## 12. Diseño visual (confirmado)
+
+- **Fondo base:** gris cálido tipo "humo" (ej. Tailwind `stone-100`/`neutral-100`), claro pero no blanco puro — evita el look plano de blanco/gris frío.
+- **Color de iconos por grupo funcional:** los iconos de un mismo grupo comparten tono; grupos distintos usan colores distintos entre sí, para que cada sección se sienta identificable de un vistazo:
+  - Navegación/acciones genéricas (bottom tab bar inactiva, botones secundarios) → un tono neutro (ej. `slate-500`).
+  - Iconos de la pestaña Principal (datos del viaje) → un tono (ej. `sky-600`).
+  - Iconos de la pestaña Actividades → otro tono (ej. `teal-600`).
+  - Iconos de la pestaña Estadía → otro tono distinto de verde/rojo, que ya están reservados por el semáforo de días (§6) (ej. `indigo-600`).
+  - FAB de sincronizar → acento cálido (`amber-500`) para que resalte sobre el resto de la UI.
+  - Dentro de cada grupo no se mezclan variantes de color — todos los iconos de esa sección usan exactamente el mismo tono.
+- **Modo oscuro:** no incluido en el MVP.
+- **Tipografía:** fuente del sistema (`font-sans` por defecto de Tailwind), sin depender de Google Fonts externas — mejor para offline/PWA, sin flash de fuente sin cargar.
+- **Tarjetas/componentes:** esquinas redondeadas medianas (`rounded-xl`), sombra suave (`shadow-sm`/`shadow-md`), sin bordes duros — estética simple de app móvil.
+- **Ícono de la app (PWA/favicon):** un ícono cuadrado simple generado a partir de un ícono de Lucide (ej. maleta o pin de mapa) sobre el color primario, sin diseñar un logo custom.
+
+## 13. Decisiones confirmadas y pendientes
+
+**Confirmado:**
+- Pack de iconos: `lucide-react`.
+- Automatización de Supabase: se le da al agente un token de acceso (Supabase CLI/Management API) para crear el proyecto, las tablas y las políticas RLS de forma autónoma (🤖, ver checklist §9).
+- Flujo de git: push directo a `main` en cada avance (el deploy se dispara automáticamente en cada push).
+- Diseño visual: fondo "humo" claro, sin modo oscuro en el MVP, iconos agrupados por color según sección funcional (ver §12).
+
+**Pendiente:**
+- Detalles de UX: ¿se pide confirmación antes de borrar un viaje/actividad/estadía?, ¿qué se muestra si la URL de imagen de portada está rota?, ¿qué se muestra en el Home cuando todavía no hay ningún viaje creado (estado vacío)?

@@ -16,8 +16,10 @@ Ver `PLAN.md` en la raíz del repo para el plan completo (alcance, modelo de dat
 - `idb` para la cache local en IndexedDB.
 - `vite-plugin-pwa` para manifest + service worker.
 - `date-fns` (o equivalente) para manejo de fechas.
+- `lucide-react` para toda la iconografía — pack gratuito/MIT, nunca un set de pago.
 - Sin gestor de estado global (Redux/Zustand/etc.) — hooks de React + contexto ligero es suficiente para el tamaño de esta app. No lo introduzcas salvo que el usuario lo pida.
 - Sin framework de testing en v1 — no añadas tests salvo que el usuario lo pida explícitamente.
+- Toda dependencia o servicio nuevo debe caber en un nivel gratuito (ver `PLAN.md` §3.1) — no agregues nada de pago sin confirmarlo antes con el usuario.
 
 ## Estructura de carpetas esperada
 
@@ -59,6 +61,7 @@ No crear capas ni carpetas adicionales "por si acaso" — mantener el árbol mí
 
 ## Capa de datos: Supabase
 
+- Si el usuario provee un token de acceso a Supabase (Personal Access Token o sesión de `supabase login` vía CLI), úsalo para crear el proyecto, las tablas y las políticas RLS de forma autónoma (vía Supabase CLI/Management API) — ver checklist en `PLAN.md` §9. Si no hay token disponible, prepara el SQL y pide a la persona que lo ejecute manualmente en el SQL Editor del dashboard.
 - Cliente único en `lib/supabase.ts`, inicializado con `import.meta.env.VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
 - **Nunca** uses la `service_role key` en el frontend — solo la `anon key` pública (ver sección de seguridad en `PLAN.md`).
 - RLS en Supabase debe quedar habilitado con policies explícitas "allow all" para `anon`, no deshabilitado — es una decisión intencional del proyecto, mantenla así al tocar el esquema.
@@ -88,6 +91,8 @@ No uses IndexedDB para nada más (no lo conviertas en una cola de cambios offlin
 
 ## UI mobile-first
 
+- Fondo base en un gris cálido tipo "humo" (`stone-100`/`neutral-100` de Tailwind), nunca blanco puro (`white`) ni gris frío por defecto.
+- Color de iconos (Lucide) agrupado por sección funcional, no por icono individual — ver detalle y valores sugeridos en `PLAN.md` §12: un tono para navegación/acciones genéricas, un tono distinto por cada pestaña (Principal/Actividades/Estadía), y el acento cálido reservado para el FAB de sincronizar. Dentro de una misma sección todos los iconos usan el mismo tono; no mezcles variantes de color dentro de un grupo.
 - Diseña primero para viewport de celular, luego adapta con breakpoints de Tailwind (`sm:`, `md:`, etc.) para pantallas más anchas.
 - Bottom tab bar fija (`position: fixed` al fondo) dentro del detalle de un viaje, con 3 ítems: Principal, Actividades, Estadía — icono + etiqueta, estado activo visualmente distinto.
 - FAB de sincronizar: botón circular flotante, no debe tapar ni ser tapado por la bottom tab bar; posición típica: esquina inferior derecha, con margen suficiente sobre la tab bar.
@@ -110,6 +115,21 @@ No uses IndexedDB para nada más (no lo conviertas en una cola de cambios offlin
 - `vite.config.ts` con `base: '/<nombre-del-repo>/'` para que assets y rutas funcionen en GitHub Pages.
 - Workflow de GitHub Actions que en cada push a `main`: instala dependencias, build, publica a Pages. No requiere pasos manuales.
 - Las variables `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` se inyectan como GitHub Secrets en el paso de build.
+
+## Flujo de trabajo: checklist, commits y pausas
+
+El progreso del proyecto se rastrea en el checklist de `PLAN.md` (sección "Checklist de seguimiento"), con dos tipos de ítems:
+
+- 🤖 el agente lo ejecuta de forma autónoma.
+- ⏸ pausa: requiere una acción de la persona (crear un recurso externo, dar credenciales, revisar visualmente, probar en un dispositivo real, etc.) antes de poder continuar.
+
+Reglas:
+
+1. Al completar cualquier ítem del checklist (🤖 o ⏸), marca la casilla correspondiente en `PLAN.md` (`- [x]`) como parte del mismo commit que hace ese avance.
+2. Haz commit + push a `origin` después de cada avance significativo — no acumules varios ítems sin commitear — y **siempre** al llegar a una pausa ⏸, aunque el trabajo esté a medias.
+3. Los mensajes de commit van **siempre en español**, breves y en modo imperativo (ej. "Agregar formulario de creación de viaje", "Configurar cliente de Supabase"), igual que los commits existentes del repo.
+4. Al llegar a un ítem ⏸, detente, explica con claridad qué debe hacer la persona y por qué el agente no puede hacerlo, haz el commit + push de lo avanzado hasta ese punto, y espera una confirmación explícita (ej. "listo", "continúa") antes de retomar el siguiente ítem.
+5. No saltes ítems ⏸ ni los simules — si falta un recurso externo (credenciales, revisión visual, prueba en dispositivo), el checklist se detiene ahí realmente.
 
 ## Qué NO hacer
 
