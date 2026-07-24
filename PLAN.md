@@ -233,7 +233,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 6 — Pestaña Estadía
 
-- [ ] 🤖 Franja de días coloreados + alta/listado de estadías
+- [x] 🤖 Franja de días coloreados + alta/listado de estadías
 - [ ] ⏸ Revisar y dar feedback
 
 ### Fase 7 — Sincronización offline
