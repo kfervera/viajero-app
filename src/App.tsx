@@ -13,8 +13,8 @@ function App() {
         <Route index element={<Principal />} />
       </Route>
       <Route path="/viajes/:tripId" element={<TripDetail />}>
-        <Route index element={<Principal />} />
-        <Route path="actividades" element={<Actividades />} />
+        <Route index element={<Actividades />} />
+        <Route path="principal" element={<Principal />} />
         <Route path="estadia" element={<Estadia />} />
       </Route>
     </Routes>

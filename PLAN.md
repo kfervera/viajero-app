@@ -137,9 +137,9 @@ Modelo confirmado — simple y de solo lectura offline:
 
 **Home** — grid/lista de cards responsive (1 columna en celular, más columnas en pantallas anchas), cada card con imagen de fondo, nombre y fechas del viaje. Tap → detalle del viaje.
 
-**Detalle de viaje** — layout con bottom tab bar fija (estilo app móvil, iconos del pack elegido en §3 + etiquetas) y FAB de sincronizar flotando sobre la tab bar:
+**Detalle de viaje** — header fijo arriba con ícono de grilla (4 cuadrados, vuelve al Home/lista de viajes) + nombre del viaje, bottom tab bar fija debajo del contenido (estilo app móvil, iconos del pack elegido en §3 + etiquetas) y FAB de sincronizar flotando sobre la tab bar. **Actividades es la pestaña por defecto**: tanto al crear un viaje nuevo como al entrar a uno existente desde el Home, se aterriza en Actividades (no en Principal).
 
-- **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin. Ícono sugerido: casa/mapa.
+- **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin. Ícono sugerido: casa/mapa. Al crear un viaje nuevo (`/viajes/nuevo`), incluye un botón "Cancelar" junto al de guardar que vuelve al Home sin crear nada; ese botón no aparece al editar un viaje ya existente.
 - **Pestaña Actividades:** formulario para agregar actividad (descripción, inicio, fin) + timeline vertical debajo, agrupado por día, ordenado cronológicamente. Ícono sugerido: calendario/lista.
 - **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout). Ícono sugerido: cama/edificio.
 - **FAB de sincronizar:** ícono de "descargar"/"refrescar" del mismo pack.
@@ -274,6 +274,9 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Diseño visual: fondo "humo" claro, sin modo oscuro en el MVP, iconos agrupados por color según sección funcional (ver §12).
 - Estado vacío del Home (sin viajes creados): mensaje + botón "Crear viaje" (tono `sky-600`).
 - Imagen de portada rota o ausente: se usa `background-image` en la card en vez de `<img>`, así se ve el color de fondo plano sin ícono ni hueco roto, tanto si no hay URL como si la URL falla.
+- Header del detalle de viaje: barra compartida arriba de las 3 pestañas con ícono de grilla (`lucide-react` `LayoutGrid`, vuelve al Home) + nombre del viaje; se sacaron los títulos duplicados que tenía cada pestaña por separado.
+- Pestaña por defecto al entrar/crear un viaje: Actividades (no Principal).
+- Botón "Cancelar" en el formulario de viaje nuevo, junto al de guardar, solo cuando es un viaje nuevo (no aparece al editar uno existente).
 
 **Pendiente:**
 

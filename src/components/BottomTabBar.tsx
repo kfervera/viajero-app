@@ -17,22 +17,24 @@ export function BottomTabBar({ tripId }: BottomTabBarProps) {
       key: 'principal',
       label: 'Principal',
       icon: House,
-      to: tripId ? `/viajes/${tripId}` : '/viajes/nuevo',
+      to: tripId ? `/viajes/${tripId}/principal` : '/viajes/nuevo',
       end: true,
     },
     {
       key: 'actividades',
       label: 'Actividades',
       icon: CalendarDays,
-      to: tripId ? `/viajes/${tripId}/actividades` : undefined,
-      end: false,
+      // Actividades es la pestaña por defecto al entrar a un viaje: vive en
+      // la ruta índice (`/viajes/:tripId`, sin sufijo), no en `/actividades`.
+      to: tripId ? `/viajes/${tripId}` : undefined,
+      end: true,
     },
     {
       key: 'estadia',
       label: 'Estadía',
       icon: BedDouble,
       to: tripId ? `/viajes/${tripId}/estadia` : undefined,
-      end: false,
+      end: true,
     },
   ]
 

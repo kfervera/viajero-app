@@ -1,10 +1,9 @@
 import { format } from 'date-fns'
-import { House } from 'lucide-react'
-import { type FormEvent, useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { createTrip, getTrip, updateTrip } from '../../data/trips'
+import { type FormEvent, useState } from 'react'
+import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
+import { createTrip, updateTrip } from '../../data/trips'
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
-import type { Trip } from '../../lib/types'
+import type { TripDetailContext } from './index'
 
 function toDatetimeLocal(isoString: string): string {
   return format(new Date(isoString), "yyyy-MM-dd'T'HH:mm")
@@ -18,41 +17,20 @@ export function Principal() {
   const { tripId } = useParams()
   const navigate = useNavigate()
   const isOnline = useOnlineStatus()
+  const { trip, onTripSaved } = useOutletContext<TripDetailContext>()
   const isNew = tripId === undefined
 
-  const [loadStatus, setLoadStatus] = useState<'loading' | 'ready' | 'error'>(
-    isNew ? 'ready' : 'loading',
+  const [name, setName] = useState(trip?.name ?? '')
+  const [coverImageUrl, setCoverImageUrl] = useState(trip?.cover_image_url ?? '')
+  const [startDatetime, setStartDatetime] = useState(
+    trip ? toDatetimeLocal(trip.start_datetime) : '',
   )
-  const [name, setName] = useState('')
-  const [coverImageUrl, setCoverImageUrl] = useState('')
-  const [startDatetime, setStartDatetime] = useState('')
-  const [endDatetime, setEndDatetime] = useState('')
+  const [endDatetime, setEndDatetime] = useState(
+    trip ? toDatetimeLocal(trip.end_datetime) : '',
+  )
   const [imageError, setImageError] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-
-  useEffect(() => {
-    if (isNew || tripId === undefined) return
-
-    let cancelled = false
-
-    getTrip(tripId)
-      .then((trip: Trip) => {
-        if (cancelled) return
-        setName(trip.name)
-        setCoverImageUrl(trip.cover_image_url ?? '')
-        setStartDatetime(toDatetimeLocal(trip.start_datetime))
-        setEndDatetime(toDatetimeLocal(trip.end_datetime))
-        setLoadStatus('ready')
-      })
-      .catch(() => {
-        if (!cancelled) setLoadStatus('error')
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [isNew, tripId])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -73,10 +51,11 @@ export function Principal() {
     setIsSaving(true)
     try {
       if (isNew) {
-        const trip = await createTrip(tripData)
-        navigate(`/viajes/${trip.id}`, { replace: true })
+        const created = await createTrip(tripData)
+        navigate(`/viajes/${created.id}`, { replace: true })
       } else if (tripId) {
-        await updateTrip(tripId, tripData)
+        const updated = await updateTrip(tripId, tripData)
+        onTripSaved(updated)
       }
     } catch {
       setFormError('No se pudo guardar. Revisa tu conexión e intenta de nuevo.')
@@ -85,35 +64,10 @@ export function Principal() {
     }
   }
 
-  if (loadStatus === 'loading') {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-6">
-        <p className="text-slate-500">Cargando datos del viaje…</p>
-      </div>
-    )
-  }
-
-  if (loadStatus === 'error') {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-6">
-        <p className="text-slate-500">
-          No se pudo cargar este viaje. Revisa tu conexión e intenta de nuevo.
-        </p>
-      </div>
-    )
-  }
-
   const formDisabled = !isOnline || isSaving
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-6 flex items-center gap-2">
-        <House className="h-5 w-5 text-sky-600" />
-        <h1 className="text-xl font-semibold text-slate-800">
-          {isNew ? 'Nuevo viaje' : 'Datos del viaje'}
-        </h1>
-      </div>
-
       {!isOnline && (
         <p className="mb-4 rounded-xl bg-slate-200 px-3 py-2 text-sm text-slate-600">
           Sin conexión. Necesitas internet para crear o editar un viaje.
@@ -198,13 +152,23 @@ export function Principal() {
 
         {formError && <p className="text-sm text-red-600">{formError}</p>}
 
-        <button
-          type="submit"
-          disabled={formDisabled}
-          className="mt-2 rounded-xl bg-sky-600 px-4 py-2 font-medium text-white shadow-sm disabled:opacity-60"
-        >
-          {isNew ? 'Crear viaje' : 'Guardar cambios'}
-        </button>
+        <div className="mt-2 flex gap-3">
+          {isNew && (
+            <Link
+              to="/"
+              className="flex-1 rounded-xl border border-slate-300 px-4 py-2 text-center font-medium text-slate-600"
+            >
+              Cancelar
+            </Link>
+          )}
+          <button
+            type="submit"
+            disabled={formDisabled}
+            className="flex-1 rounded-xl bg-sky-600 px-4 py-2 font-medium text-white shadow-sm disabled:opacity-60"
+          >
+            {isNew ? 'Crear viaje' : 'Guardar cambios'}
+          </button>
+        </div>
       </form>
     </div>
   )
