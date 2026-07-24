@@ -1,15 +1,29 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Check } from 'lucide-react'
+import { Check, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { TripIndexEntry } from '../lib/types'
+import type { TripTemporalStatus } from '../lib/tripStatus'
+import type { Activity, TripIndexEntry } from '../lib/types'
 
 interface TripCardProps {
   trip: TripIndexEntry
   isSynced?: boolean
+  status: TripTemporalStatus
+  currentActivity?: Activity | null
 }
 
-export function TripCard({ trip, isSynced = false }: TripCardProps) {
+const STATUS_COLOR: Record<TripTemporalStatus, string> = {
+  past: 'bg-slate-400',
+  active: 'bg-blue-500',
+  future: 'bg-emerald-500',
+}
+
+export function TripCard({
+  trip,
+  isSynced = false,
+  status,
+  currentActivity = null,
+}: TripCardProps) {
   const dateRange = `${format(new Date(trip.start_datetime), 'd MMM', { locale: es })} – ${format(
     new Date(trip.end_datetime),
     'd MMM yyyy',
@@ -19,8 +33,12 @@ export function TripCard({ trip, isSynced = false }: TripCardProps) {
   return (
     <Link
       to={`/viajes/${trip.id}`}
-      className="block overflow-hidden rounded-xl bg-white shadow-sm"
+      className="relative block overflow-hidden rounded-xl bg-white shadow-sm"
     >
+      <div
+        aria-hidden="true"
+        className={`absolute inset-y-0 left-0 z-10 w-1.5 ${STATUS_COLOR[status]}`}
+      />
       <div
         className="relative h-32 w-full bg-slate-200 bg-cover bg-center"
         style={
@@ -42,6 +60,19 @@ export function TripCard({ trip, isSynced = false }: TripCardProps) {
       <div className="p-3">
         <h2 className="truncate font-medium text-slate-800">{trip.name}</h2>
         <p className="text-sm text-slate-500">{dateRange}</p>
+        {currentActivity && (
+          <div className="mt-2 rounded-lg bg-blue-50 px-2 py-1.5">
+            <p className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-blue-600">
+              <Clock className="h-3 w-3" />
+              En curso
+            </p>
+            <p className="truncate text-xs text-blue-800">
+              {currentActivity.summary} ·{' '}
+              {format(new Date(currentActivity.start_datetime), 'HH:mm')}–
+              {format(new Date(currentActivity.end_datetime), 'HH:mm')}
+            </p>
+          </div>
+        )}
       </div>
     </Link>
   )

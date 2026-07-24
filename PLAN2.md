@@ -72,9 +72,9 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 1 — Home: orden, semáforo y actividad en curso
 
-- [ ] 🤖 Ordenar la lista de viajes del Home por `start_datetime` descendente (más nuevas primero) en `useTrips`; el viaje sincronizado, si existe, se mueve siempre a la primera posición sin alterar el orden del resto.
-- [ ] 🤖 Agregar franja de color "semáforo" al borde izquierdo de `TripCard` (helper nuevo, ej. `lib/tripStatus.ts`): plomo si `end_datetime < ahora`, azul si `start_datetime <= ahora <= end_datetime`, verde si `start_datetime > ahora`.
-- [ ] 🤖 Si el viaje en curso coincide con el sincronizado localmente, calcular la actividad cuyo rango contiene el momento actual (a partir de `active_trip_cache.activities`) y mostrarla en una sección chica dentro de la card ("En curso: {summary}", con el horario); si ninguna actividad está activa en ese momento, no se muestra la sección.
+- [x] 🤖 Ordenar la lista de viajes del Home por `start_datetime` descendente (más nuevas primero) en `useTrips`; el viaje sincronizado, si existe, se mueve siempre a la primera posición sin alterar el orden del resto.
+- [x] 🤖 Agregar franja de color "semáforo" al borde izquierdo de `TripCard` (helper nuevo, ej. `lib/tripStatus.ts`): plomo si `end_datetime < ahora`, azul si `start_datetime <= ahora <= end_datetime`, verde si `start_datetime > ahora`.
+- [x] 🤖 Si el viaje en curso coincide con el sincronizado localmente, calcular la actividad cuyo rango contiene el momento actual (a partir de `active_trip_cache.activities`) y mostrarla en una sección chica dentro de la card ("En curso: {summary}", con el horario); si ninguna actividad está activa en ese momento, no se muestra la sección.
 - [ ] ⏸ Revisar visualmente el Home (orden, semáforo, actividad en curso) y dar feedback.
 
 ### Fase 2 — Días y noches (D/N)

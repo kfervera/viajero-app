@@ -1,25 +1,31 @@
 import { useEffect, useState } from 'react'
 import { listTrips } from '../data/trips'
 import { getActiveTripCache, getTripsIndex, setTripsIndex } from '../lib/idb'
-import type { TripIndexEntry } from '../lib/types'
+import type { Activity, TripIndexEntry } from '../lib/types'
 import { useOnlineStatus } from './useOnlineStatus'
 
 type TripsStatus = 'loading' | 'ready'
 
-// El viaje sincronizado va siempre primero, esté o no offline — es el que
-// tiene copia disponible sin conexión, conviene tenerlo a mano.
-function withSyncedFirst(trips: TripIndexEntry[], syncedTripId: string | null) {
-  if (!syncedTripId) return trips
-  return [...trips].sort((a, b) => {
-    if (a.id === syncedTripId) return -1
-    if (b.id === syncedTripId) return 1
-    return 0
-  })
+// Orden descendente por fecha de inicio (más nuevas primero); el viaje
+// sincronizado, si existe, siempre pasa a la primera posición sin alterar
+// el orden relativo del resto — es el que tiene copia disponible offline.
+function sortTrips(trips: TripIndexEntry[], syncedTripId: string | null) {
+  const sorted = [...trips].sort(
+    (a, b) => new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime(),
+  )
+  if (!syncedTripId) return sorted
+
+  const syncedIndex = sorted.findIndex((trip) => trip.id === syncedTripId)
+  if (syncedIndex <= 0) return sorted
+
+  const [synced] = sorted.splice(syncedIndex, 1)
+  return [synced, ...sorted]
 }
 
 export function useTrips() {
   const [trips, setTrips] = useState<TripIndexEntry[]>([])
   const [syncedTripId, setSyncedTripId] = useState<string | null>(null)
+  const [syncedTripActivities, setSyncedTripActivities] = useState<Activity[]>([])
   const [status, setStatus] = useState<TripsStatus>('loading')
   const isOnline = useOnlineStatus()
 
@@ -52,8 +58,9 @@ export function useTrips() {
         getActiveTripCache(),
       ])
       if (!cancelled) {
-        setTrips(withSyncedFirst(cached, activeCache?.trip_id ?? null))
+        setTrips(sortTrips(cached, activeCache?.trip_id ?? null))
         setSyncedTripId(activeCache?.trip_id ?? null)
+        setSyncedTripActivities(activeCache?.activities ?? [])
         setStatus('ready')
       }
     }
@@ -65,5 +72,5 @@ export function useTrips() {
     }
   }, [isOnline])
 
-  return { trips, status, syncedTripId }
+  return { trips, status, syncedTripId, syncedTripActivities }
 }

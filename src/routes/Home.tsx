@@ -1,12 +1,15 @@
 import { MapPin, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { TripCard } from '../components/TripCard'
+import { useNow } from '../hooks/useNow'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useTrips } from '../hooks/useTrips'
+import { getCurrentActivity, getTripStatus } from '../lib/tripStatus'
 
 export function Home() {
-  const { trips, status, syncedTripId } = useTrips()
+  const { trips, status, syncedTripId, syncedTripActivities } = useTrips()
   const isOnline = useOnlineStatus()
+  const now = useNow()
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
@@ -50,9 +53,24 @@ export function Home() {
 
       {status === 'ready' && trips.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {trips.map((trip) => (
-            <TripCard key={trip.id} trip={trip} isSynced={trip.id === syncedTripId} />
-          ))}
+          {trips.map((trip) => {
+            const isSynced = trip.id === syncedTripId
+            const tripStatus = getTripStatus(trip, now)
+            const currentActivity =
+              isSynced && tripStatus === 'active'
+                ? getCurrentActivity(syncedTripActivities, now)
+                : null
+
+            return (
+              <TripCard
+                key={trip.id}
+                trip={trip}
+                isSynced={isSynced}
+                status={tripStatus}
+                currentActivity={currentActivity}
+              />
+            )
+          })}
         </div>
       )}
 
