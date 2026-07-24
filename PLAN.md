@@ -190,7 +190,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 2 — Home
 
-- [ ] 🤖 Listado de cards responsive + estados de carga/offline/vacío
+- [x] 🤖 Listado de cards responsive + estados de carga/offline/vacío
 - [ ] ⏸ Revisar visualmente el Home y dar feedback de diseño
 
 ### Fase 3 — Shell del detalle de viaje
@@ -271,7 +271,9 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Automatización de Supabase: se le da al agente un token de acceso (Supabase CLI/Management API) para crear el proyecto, las tablas y las políticas RLS de forma autónoma (🤖, ver checklist §9).
 - Flujo de git: push directo a `main` en cada avance (el deploy se dispara automáticamente en cada push).
 - Diseño visual: fondo "humo" claro, sin modo oscuro en el MVP, iconos agrupados por color según sección funcional (ver §12).
+- Estado vacío del Home (sin viajes creados): mensaje + botón "Crear viaje" (tono `sky-600`).
+- Imagen de portada rota o ausente: se usa `background-image` en la card en vez de `<img>`, así se ve el color de fondo plano sin ícono ni hueco roto, tanto si no hay URL como si la URL falla.
 
 **Pendiente:**
 
-- Detalles de UX: ¿se pide confirmación antes de borrar un viaje/actividad/estadía?, ¿qué se muestra si la URL de imagen de portada está rota?, ¿qué se muestra en el Home cuando todavía no hay ningún viaje creado (estado vacío)?
+- Detalles de UX: ¿se pide confirmación antes de borrar un viaje/actividad/estadía?

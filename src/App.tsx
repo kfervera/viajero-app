@@ -1,9 +1,7 @@
+import { Home } from './routes/Home'
+
 function App() {
-  return (
-    <div className="flex min-h-svh items-center justify-center">
-      <h1 className="text-2xl font-medium text-slate-700">Viajero</h1>
-    </div>
-  )
+  return <Home />
 }
 
 export default App
