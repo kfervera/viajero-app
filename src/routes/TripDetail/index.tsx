@@ -10,8 +10,16 @@ export interface TripDetailContext {
   onTripSaved: (trip: Trip) => void
 }
 
+// Envuelve el contenido con una key atada a tripId: React Router reutiliza
+// la misma instancia de TripDetail al navegar entre /viajes/:tripId y
+// /viajes/nuevo (misma posición en el árbol), así que sin esta key el
+// estado de un viaje quedaba pegado al entrar a otro.
 export function TripDetail() {
   const { tripId } = useParams()
+  return <TripDetailContent key={tripId ?? 'nuevo'} tripId={tripId} />
+}
+
+function TripDetailContent({ tripId }: { tripId?: string }) {
   const [trip, setTrip] = useState<Trip | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
     tripId ? 'loading' : 'ready',
