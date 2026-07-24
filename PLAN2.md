@@ -93,14 +93,14 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - [x] 🤖 Actualizar `lib/types.ts` (`EvidenceItem`, `Activity.evidence`, `Lodging.evidence`) y las funciones CRUD de `data/activities.ts`/`data/lodgings.ts` si hace falta.
 - [x] 🤖 `ActivityForm`: cada fila de evidencia pasa a tener dos campos (nombre + url); `ActivityCard` (vista expandida) muestra el nombre como texto del link.
 - [x] 🤖 `LodgingForm`: agrega la misma sección de evidencias (nombre + url); `LodgingCard`: lista las evidencias como links con su nombre, siempre visibles debajo de las notas.
-- [ ] ⏸ Revisar visualmente evidencias en Actividades y Estadías (formulario + card) y dar feedback.
+- [x] ⏸ Revisar visualmente evidencias en Actividades y Estadías (formulario + card) y dar feedback.
 
 ### Fase 4 — Borrar datos sincronizados y borrar viaje completo
 
-- [ ] 🤖 Componente de confirmación reutilizable (modal propio) para acciones destructivas.
-- [ ] 🤖 `lib/idb.ts`: función para limpiar `active_trip_cache`; botón "Eliminar datos sincronizados" en Principal (visible solo si el viaje abierto es el sincronizado), que la usa tras confirmar.
-- [ ] 🤖 Botón "Eliminar viaje" en Principal (solo al editar un viaje existente): tras confirmar, llama `deleteTrip`, limpia el cache local si coincidía, y navega al Home.
-- [ ] ⏸ Revisar el flujo de borrado (ambos botones y sus confirmaciones) y dar feedback.
+- [x] 🤖 Componente de confirmación reutilizable (modal propio) para acciones destructivas.
+- [x] 🤖 `lib/idb.ts`: función para limpiar `active_trip_cache`; botón "Eliminar datos sincronizados" en Principal (visible solo si el viaje abierto es el sincronizado), que la usa tras confirmar.
+- [x] 🤖 Botón "Eliminar viaje" en Principal (solo al editar un viaje existente): tras confirmar, llama `deleteTrip`, limpia el cache local si coincidía, y navega al Home.
+- [x] ⏸ Revisar el flujo de borrado (ambos botones y sus confirmaciones) y dar feedback.
 
 ### Fase 5 — Pantalla Horario
 

@@ -1,7 +1,8 @@
 import { format } from 'date-fns'
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
-import { createTrip, updateTrip } from '../../data/trips'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { createTrip, deleteTrip, updateTrip } from '../../data/trips'
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import type { TripDetailContext } from './index'
 
@@ -17,7 +18,8 @@ export function Principal() {
   const { tripId } = useParams()
   const navigate = useNavigate()
   const isOnline = useOnlineStatus()
-  const { trip, onTripSaved } = useOutletContext<TripDetailContext>()
+  const { trip, isSyncedTrip, onTripSaved, onClearSyncedCache } =
+    useOutletContext<TripDetailContext>()
   const isNew = tripId === undefined
 
   const [name, setName] = useState(trip?.name ?? '')
@@ -31,6 +33,11 @@ export function Principal() {
   const [imageError, setImageError] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<
+    'clear-cache' | 'delete-trip' | null
+  >(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -61,6 +68,26 @@ export function Principal() {
       setFormError('No se pudo guardar. Revisa tu conexión e intenta de nuevo.')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmAction) return
+    setIsDeleting(true)
+    setDeleteError(null)
+    try {
+      if (confirmAction === 'clear-cache') {
+        await onClearSyncedCache()
+        setConfirmAction(null)
+      } else if (tripId) {
+        await deleteTrip(tripId)
+        if (isSyncedTrip) await onClearSyncedCache()
+        navigate('/', { replace: true })
+      }
+    } catch {
+      setDeleteError('No se pudo completar la acción. Revisa tu conexión e intenta de nuevo.')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -174,6 +201,50 @@ export function Principal() {
           </button>
         </div>
       </form>
+
+      {!isNew && (
+        <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-6">
+          <h2 className="text-sm font-medium text-slate-700">Zona de peligro</h2>
+
+          {deleteError && (
+            <p role="alert" className="text-sm text-red-600">
+              {deleteError}
+            </p>
+          )}
+
+          {isSyncedTrip && (
+            <button
+              type="button"
+              onClick={() => setConfirmAction('clear-cache')}
+              className="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-600"
+            >
+              Eliminar datos sincronizados
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setConfirmAction('delete-trip')}
+            disabled={!isOnline}
+            className="rounded-xl border border-red-300 px-4 py-2 font-medium text-red-600 disabled:opacity-60"
+          >
+            Eliminar viaje
+          </button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title={confirmAction === 'delete-trip' ? 'Eliminar viaje' : 'Eliminar datos sincronizados'}
+        description={
+          confirmAction === 'delete-trip'
+            ? 'Se va a borrar este viaje junto con todas sus actividades y estadías de forma permanente. Esta acción no se puede deshacer.'
+            : 'Se va a borrar la copia local de este viaje para verlo sin conexión. Podés volver a sincronizarlo cuando quieras.'
+        }
+        isConfirming={isDeleting}
+        onCancel={() => setConfirmAction(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   )
 }

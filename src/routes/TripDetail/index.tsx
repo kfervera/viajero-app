@@ -13,9 +13,11 @@ export interface TripDetailContext {
   lodgings: Lodging[]
   isOnline: boolean
   isFromCache: boolean
+  isSyncedTrip: boolean
   onTripSaved: (trip: Trip) => void
   onActivitiesChanged: (activities: Activity[]) => void
   onLodgingsChanged: (lodgings: Lodging[]) => void
+  onClearSyncedCache: () => Promise<void>
 }
 
 // Envuelve el contenido con una key atada a tripId: React Router reutiliza
@@ -35,8 +37,10 @@ function TripDetailContent({ tripId }: { tripId?: string }) {
     status,
     isOnline,
     isFromCache,
+    isSyncedTrip,
     syncedAt,
     sync,
+    clearSyncedCache,
     setTrip,
     setActivities,
     setLodgings,
@@ -104,9 +108,11 @@ function TripDetailContent({ tripId }: { tripId?: string }) {
             lodgings,
             isOnline,
             isFromCache,
+            isSyncedTrip,
             onTripSaved: setTrip,
             onActivitiesChanged: setActivities,
             onLodgingsChanged: setLodgings,
+            onClearSyncedCache: clearSyncedCache,
           } satisfies TripDetailContext
         }
       />

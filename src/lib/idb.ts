@@ -55,3 +55,8 @@ export async function setActiveTripCache(
   const db = await getDb()
   await db.put('active_trip_cache', cache, ACTIVE_TRIP_KEY)
 }
+
+export async function clearActiveTripCache(): Promise<void> {
+  const db = await getDb()
+  await db.delete('active_trip_cache', ACTIVE_TRIP_KEY)
+}

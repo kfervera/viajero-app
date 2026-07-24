@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { listActivities } from '../data/activities'
 import { listLodgings } from '../data/lodgings'
 import { getTrip } from '../data/trips'
-import { getActiveTripCache } from '../lib/idb'
+import { clearActiveTripCache, getActiveTripCache } from '../lib/idb'
 import { downloadTripForOffline } from '../lib/sync'
 import type { Activity, Lodging, Trip } from '../lib/types'
 import { useOnlineStatus } from './useOnlineStatus'
@@ -37,6 +37,23 @@ export function useActiveTrip(tripId: string | undefined) {
   const [state, setState] = useState<ActiveTripState>(
     tripId ? LOADING : READY_EMPTY,
   )
+  const [isSyncedTrip, setIsSyncedTrip] = useState(false)
+
+  // Independiente del online/offline de arriba: si este viaje es el que
+  // está guardado en active_trip_cache, sin importar si se está mostrando
+  // desde ahí o desde Supabase en este momento.
+  useEffect(() => {
+    if (!tripId) return
+
+    let cancelled = false
+    getActiveTripCache().then((cache) => {
+      if (!cancelled) setIsSyncedTrip(cache?.trip_id === tripId)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [tripId])
 
   useEffect(() => {
     if (!tripId) return
@@ -114,6 +131,12 @@ export function useActiveTrip(tripId: string | undefined) {
       isFromCache: false,
       syncedAt: cache.synced_at,
     })
+    setIsSyncedTrip(true)
+  }
+
+  async function clearSyncedCache() {
+    await clearActiveTripCache()
+    setIsSyncedTrip(false)
   }
 
   function setTrip(trip: Trip) {
@@ -128,5 +151,14 @@ export function useActiveTrip(tripId: string | undefined) {
     setState((prev) => ({ ...prev, lodgings }))
   }
 
-  return { ...state, isOnline, sync, setTrip, setActivities, setLodgings }
+  return {
+    ...state,
+    isOnline,
+    isSyncedTrip,
+    sync,
+    clearSyncedCache,
+    setTrip,
+    setActivities,
+    setLodgings,
+  }
 }
