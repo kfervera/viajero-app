@@ -164,7 +164,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 0 — Setup
 - [x] 🤖 Scaffold del proyecto (Vite + React + TS)
-- [ ] 🤖 Configurar Tailwind CSS
+- [x] 🤖 Configurar Tailwind CSS
 - [ ] 🤖 Configurar ESLint + Prettier
 - [ ] 🤖 Crear estructura de carpetas (`src/lib`, `src/data`, `src/hooks`, `src/components`, `src/routes`)
 - [ ] 🤖 Instalar `lucide-react`
