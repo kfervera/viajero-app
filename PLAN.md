@@ -176,8 +176,8 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - [ ] ⏸ Crear cuenta en Supabase (si no existe) y generar un token de acceso (Personal Access Token o sesión de `supabase login` vía CLI); compartirlo con el agente
 - [x] 🤖 Crear el proyecto en Supabase, las tablas (`trips`, `activities`, `lodgings`) y las políticas RLS "allow all" para `anon` (vía Supabase CLI/Management API)
 - [x] 🤖 Obtener la URL y anon key del proyecto creado; crear `.env` local (no versionado) y `.env.example`
-- [ ] ⏸ Configurar los secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en GitHub (Settings → Secrets and variables → Actions)
-- [ ] 🤖 Crear workflow de GitHub Actions (build + deploy a Pages)
+- [x] ⏸ Configurar los secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en GitHub (Settings → Secrets and variables → Actions)
+- [x] 🤖 Crear workflow de GitHub Actions (build + deploy a Pages)
 - [ ] ⏸ Habilitar GitHub Pages en Settings → Pages (Source: GitHub Actions)
 - [ ] 🤖 Configuración base de `vite-plugin-pwa`
 
