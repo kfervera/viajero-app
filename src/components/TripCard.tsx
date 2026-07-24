@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { Link } from 'react-router-dom'
 import type { TripIndexEntry } from '../lib/types'
 
 interface TripCardProps {
@@ -14,7 +15,10 @@ export function TripCard({ trip }: TripCardProps) {
   )}`
 
   return (
-    <article className="overflow-hidden rounded-xl bg-white shadow-sm">
+    <Link
+      to={`/viajes/${trip.id}`}
+      className="block overflow-hidden rounded-xl bg-white shadow-sm"
+    >
       <div
         className="h-32 w-full bg-slate-200 bg-cover bg-center"
         style={
@@ -27,6 +31,6 @@ export function TripCard({ trip }: TripCardProps) {
         <h2 className="truncate font-medium text-slate-800">{trip.name}</h2>
         <p className="text-sm text-slate-500">{dateRange}</p>
       </div>
-    </article>
+    </Link>
   )
 }

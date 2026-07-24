@@ -1,4 +1,5 @@
 import { MapPin, Plus } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { TripCard } from '../components/TripCard'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useTrips } from '../hooks/useTrips'
@@ -11,11 +12,22 @@ export function Home() {
     <div className="mx-auto max-w-4xl px-4 py-6">
       <header className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-800">Mis viajes</h1>
-        {!isOnline && (
-          <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-600">
-            Sin conexión
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {!isOnline && (
+            <span className="rounded-full bg-slate-200 px-3 py-1 text-xs text-slate-600">
+              Sin conexión
+            </span>
+          )}
+          {status === 'ready' && trips.length > 0 && (
+            <Link
+              to="/viajes/nuevo"
+              className="flex items-center gap-1 rounded-xl bg-sky-600 px-3 py-2 text-sm text-white shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Nuevo viaje
+            </Link>
+          )}
+        </div>
       </header>
 
       {status === 'loading' && (
@@ -26,13 +38,13 @@ export function Home() {
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <MapPin className="h-10 w-10 text-slate-400" />
           <p className="text-slate-500">Todavía no tienes ningún viaje.</p>
-          <button
-            type="button"
+          <Link
+            to="/viajes/nuevo"
             className="flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-white shadow-sm"
           >
             <Plus className="h-4 w-4" />
             Crear viaje
-          </button>
+          </Link>
         </div>
       )}
 

@@ -195,7 +195,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 3 — Shell del detalle de viaje
 
-- [ ] 🤖 Ruteo por viaje, bottom tab bar, layout mobile-first
+- [x] 🤖 Ruteo por viaje, bottom tab bar, layout mobile-first
 
 ### Fase 4 — Pestaña Principal
 
@@ -247,6 +247,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Bottom tabs se mantienen igual en desktop y mobile (no se cambia a sidebar en pantallas anchas), para mantener consistencia visual simple.
 - `checkin_date`/`checkout_date` de estadías se manejan como fecha (sin hora) — si luego se necesita hora exacta de checkin/checkout se puede migrar a `timestamptz` sin romper el resto del modelo.
 - Timezone: fechas/horas se guardan en UTC en Supabase y se muestran en la zona horaria local del navegador.
+- Ruteo con `HashRouter` (URLs tipo `#/viajes/:id`) en vez de `BrowserRouter`, porque GitHub Pages no soporta reescritura de rutas del lado del servidor; evita el hack de un `404.html` de redirección.
 
 ## 12. Diseño visual (confirmado)
 
