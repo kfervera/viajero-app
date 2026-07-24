@@ -1,49 +1,61 @@
-import { format } from 'date-fns'
+import { differenceInMinutes, format } from 'date-fns'
 import { Pencil, Plus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { createActivity, updateActivity } from '../data/activities'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
+import { ACTIVITY_CATEGORIES, getSubcategoriesFor } from '../lib/activityCategories'
+import { formatMinutesAsDuration, parseDurationToMinutes } from '../lib/duration'
 import type { Activity } from '../lib/types'
 
 function toDatetimeLocal(isoString: string): string {
   return format(new Date(isoString), "yyyy-MM-dd'T'HH:mm")
 }
 
-function toIso(datetimeLocal: string): string {
-  return new Date(datetimeLocal).toISOString()
-}
-
 interface ActivityFormProps {
   tripId: string
   activity?: Activity | null
   onSaved: (activity: Activity) => void
-  onCancelEdit: () => void
+  onCancel: () => void
 }
 
 export function ActivityForm({
   tripId,
   activity,
   onSaved,
-  onCancelEdit,
+  onCancel,
 }: ActivityFormProps) {
   const isOnline = useOnlineStatus()
   const isEditing = Boolean(activity)
 
   const [summary, setSummary] = useState(activity?.summary ?? '')
+  const [category, setCategory] = useState(activity?.category ?? '')
+  const [subcategory, setSubcategory] = useState(activity?.subcategory ?? '')
   const [place, setPlace] = useState(activity?.place ?? '')
   const [mapUrl, setMapUrl] = useState(activity?.map_url ?? '')
   const [agency, setAgency] = useState(activity?.agency ?? '')
   const [phoneNumber, setPhoneNumber] = useState(activity?.phone_number ?? '')
   const [description, setDescription] = useState(activity?.description ?? '')
   const [notes, setNotes] = useState<string[]>(activity?.notes ?? [])
+  const [evidenceUrls, setEvidenceUrls] = useState<string[]>(
+    activity?.evidence_urls ?? [],
+  )
   const [startDatetime, setStartDatetime] = useState(
     activity ? toDatetimeLocal(activity.start_datetime) : '',
   )
-  const [endDatetime, setEndDatetime] = useState(
-    activity ? toDatetimeLocal(activity.end_datetime) : '',
+  const [duration, setDuration] = useState(
+    activity
+      ? formatMinutesAsDuration(
+          differenceInMinutes(
+            new Date(activity.end_datetime),
+            new Date(activity.start_datetime),
+          ),
+        )
+      : '',
   )
   const [formError, setFormError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+
+  const subcategoryOptions = getSubcategoriesFor(category)
 
   function updateNote(index: number, value: string) {
     setNotes((prev) => prev.map((note, i) => (i === index ? value : note)))
@@ -53,38 +65,43 @@ export function ActivityForm({
     setNotes((prev) => prev.filter((_, i) => i !== index))
   }
 
-  function resetForm() {
-    setSummary('')
-    setPlace('')
-    setMapUrl('')
-    setAgency('')
-    setPhoneNumber('')
-    setDescription('')
-    setNotes([])
-    setStartDatetime('')
-    setEndDatetime('')
+  function updateEvidence(index: number, value: string) {
+    setEvidenceUrls((prev) => prev.map((url, i) => (i === index ? value : url)))
+  }
+
+  function removeEvidence(index: number) {
+    setEvidenceUrls((prev) => prev.filter((_, i) => i !== index))
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setFormError(null)
 
-    if (new Date(endDatetime) <= new Date(startDatetime)) {
-      setFormError('La fecha de fin debe ser posterior a la de inicio.')
+    const durationMinutes = parseDurationToMinutes(duration)
+    if (durationMinutes === null) {
+      setFormError('Duración inválida. Usa un formato como "1h 25m" o "45m".')
       return
     }
+
+    const start = new Date(startDatetime)
+    const end = new Date(start.getTime() + durationMinutes * 60_000)
 
     const activityData = {
       trip_id: tripId,
       summary,
+      category: category === '' ? null : category,
+      subcategory: subcategory === '' ? null : subcategory,
       description: description.trim() === '' ? null : description.trim(),
       place: place.trim() === '' ? null : place.trim(),
       map_url: mapUrl.trim() === '' ? null : mapUrl.trim(),
       agency: agency.trim() === '' ? null : agency.trim(),
       phone_number: phoneNumber.trim() === '' ? null : phoneNumber.trim(),
       notes: notes.map((note) => note.trim()).filter((note) => note !== ''),
-      start_datetime: toIso(startDatetime),
-      end_datetime: toIso(endDatetime),
+      evidence_urls: evidenceUrls
+        .map((url) => url.trim())
+        .filter((url) => url !== ''),
+      start_datetime: start.toISOString(),
+      end_datetime: end.toISOString(),
     }
 
     setIsSaving(true)
@@ -92,7 +109,6 @@ export function ActivityForm({
       const saved = activity
         ? await updateActivity(activity.id, activityData)
         : await createActivity(activityData)
-      if (!activity) resetForm()
       onSaved(saved)
     } catch {
       setFormError('No se pudo guardar. Revisa tu conexión e intenta de nuevo.')
@@ -136,28 +152,68 @@ export function ActivityForm({
 
       <div className="flex gap-3">
         <label className="flex flex-1 flex-col gap-1">
-          <span className="text-sm font-medium text-slate-700">Inicio</span>
-          <input
-            type="datetime-local"
-            required
-            value={startDatetime}
-            onChange={(e) => setStartDatetime(e.target.value)}
+          <span className="text-sm font-medium text-slate-700">Categoría</span>
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value)
+              setSubcategory('')
+            }}
             disabled={formDisabled}
             className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
-          />
+          >
+            <option value="">Sin categoría</option>
+            {ACTIVITY_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="text-sm font-medium text-slate-700">Fin</span>
-          <input
-            type="datetime-local"
-            required
-            value={endDatetime}
-            onChange={(e) => setEndDatetime(e.target.value)}
-            disabled={formDisabled}
+          <span className="text-sm font-medium text-slate-700">
+            Subcategoría
+          </span>
+          <select
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+            disabled={formDisabled || subcategoryOptions.length === 0}
             className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
-          />
+          >
+            <option value="">Sin subcategoría</option>
+            {subcategoryOptions.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-slate-700">Inicio</span>
+        <input
+          type="datetime-local"
+          required
+          value={startDatetime}
+          onChange={(e) => setStartDatetime(e.target.value)}
+          disabled={formDisabled}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-slate-700">Duración</span>
+        <input
+          type="text"
+          required
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          disabled={formDisabled}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+          placeholder="Ej. 1h 25m"
+        />
+      </label>
 
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium text-slate-700">Lugar</span>
@@ -249,18 +305,50 @@ export function ActivityForm({
         </button>
       </div>
 
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-slate-700">Evidencias</span>
+        {evidenceUrls.map((url, index) => (
+          <div key={index} className="flex gap-2">
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => updateEvidence(index, e.target.value)}
+              disabled={formDisabled}
+              className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 disabled:opacity-60"
+              placeholder="https://drive.google.com/…"
+            />
+            <button
+              type="button"
+              onClick={() => removeEvidence(index)}
+              disabled={formDisabled}
+              aria-label="Quitar evidencia"
+              className="text-slate-400"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setEvidenceUrls((prev) => [...prev, ''])}
+          disabled={formDisabled}
+          className="flex items-center gap-1 self-start text-sm font-medium text-teal-600"
+        >
+          <Plus className="h-4 w-4" />
+          Agregar evidencia
+        </button>
+      </div>
+
       {formError && <p className="text-sm text-red-600">{formError}</p>}
 
       <div className="flex gap-3">
-        {isEditing && (
-          <button
-            type="button"
-            onClick={onCancelEdit}
-            className="flex-1 rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-600"
-          >
-            Cancelar edición
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-600"
+        >
+          {isEditing ? 'Cancelar edición' : 'Cancelar'}
+        </button>
         <button
           type="submit"
           disabled={formDisabled}

@@ -1,5 +1,7 @@
 import { format } from 'date-fns'
-import { MapPin, MessageCircle, Pencil } from 'lucide-react'
+import { ExternalLink, MapPin, MessageCircle, Pencil } from 'lucide-react'
+import { createElement } from 'react'
+import { getSubcategoryIcon } from '../lib/activityCategories'
 import type { Activity } from '../lib/types'
 
 interface ActivityCardProps {
@@ -20,12 +22,23 @@ export function ActivityCard({
     'HH:mm',
   )}`
 
+  const subcategoryIcon = getSubcategoryIcon(activity.subcategory)
+
   const hasExpandedContent =
-    activity.description || activity.agency || activity.notes.length > 0
+    activity.description ||
+    activity.agency ||
+    activity.notes.length > 0 ||
+    activity.evidence_urls.length > 0
 
   return (
     <div className="rounded-xl bg-white p-3 shadow-sm">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start gap-2">
+        {subcategoryIcon && (
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-50 text-teal-600">
+            {createElement(subcategoryIcon, { className: 'h-4 w-4' })}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={onToggleExpand}
@@ -87,6 +100,23 @@ export function ActivityCard({
                 <li key={index}>{note}</li>
               ))}
             </ul>
+          )}
+          {activity.evidence_urls.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <span className="font-medium text-slate-700">Evidencias</span>
+              {activity.evidence_urls.map((url, index) => (
+                <a
+                  key={index}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-teal-600"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Evidencia {index + 1}
+                </a>
+              ))}
+            </div>
           )}
         </div>
       )}

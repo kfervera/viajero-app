@@ -12,12 +12,15 @@ export interface Activity {
   id: string
   trip_id: string
   summary: string
+  category: string | null
+  subcategory: string | null
   description: string | null
   place: string | null
   map_url: string | null
   agency: string | null
   phone_number: string | null
   notes: string[]
+  evidence_urls: string[]
   start_datetime: string
   end_datetime: string
   created_at: string
