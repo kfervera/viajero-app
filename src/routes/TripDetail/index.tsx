@@ -1,13 +1,21 @@
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { LayoutGrid } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Link, Outlet, useParams } from 'react-router-dom'
 import { BottomTabBar } from '../../components/BottomTabBar'
-import { getTrip } from '../../data/trips'
-import type { Trip } from '../../lib/types'
+import { SyncFab } from '../../components/SyncFab'
+import { useActiveTrip } from '../../hooks/useActiveTrip'
+import type { Activity, Lodging, Trip } from '../../lib/types'
 
 export interface TripDetailContext {
   trip: Trip | null
+  activities: Activity[]
+  lodgings: Lodging[]
+  isOnline: boolean
+  isFromCache: boolean
   onTripSaved: (trip: Trip) => void
+  onActivitiesChanged: (activities: Activity[]) => void
+  onLodgingsChanged: (lodgings: Lodging[]) => void
 }
 
 // Envuelve el contenido con una key atada a tripId: React Router reutiliza
@@ -20,30 +28,19 @@ export function TripDetail() {
 }
 
 function TripDetailContent({ tripId }: { tripId?: string }) {
-  const [trip, setTrip] = useState<Trip | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
-    tripId ? 'loading' : 'ready',
-  )
-
-  useEffect(() => {
-    if (!tripId) return
-
-    let cancelled = false
-
-    getTrip(tripId)
-      .then((loadedTrip) => {
-        if (cancelled) return
-        setTrip(loadedTrip)
-        setStatus('ready')
-      })
-      .catch(() => {
-        if (!cancelled) setStatus('error')
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [tripId])
+  const {
+    trip,
+    activities,
+    lodgings,
+    status,
+    isOnline,
+    isFromCache,
+    syncedAt,
+    sync,
+    setTrip,
+    setActivities,
+    setLodgings,
+  } = useActiveTrip(tripId)
 
   if (status === 'loading') {
     return (
@@ -53,11 +50,12 @@ function TripDetailContent({ tripId }: { tripId?: string }) {
     )
   }
 
-  if (status === 'error') {
+  if (status === 'offline-unavailable') {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-3 px-4 text-center">
         <p className="text-slate-500">
-          No se pudo cargar este viaje. Revisa tu conexión e intenta de nuevo.
+          Sin conexión. Este viaje no está disponible sin conexión —
+          sincronízalo primero cuando tengas internet.
         </p>
         <Link to="/" className="font-medium text-sky-600">
           Volver a mis viajes
@@ -76,8 +74,30 @@ function TripDetailContent({ tripId }: { tripId?: string }) {
           {trip ? trip.name : 'Nuevo viaje'}
         </h1>
       </header>
-      <Outlet context={{ trip, onTripSaved: setTrip } satisfies TripDetailContext} />
+
+      {isFromCache && syncedAt && (
+        <p className="bg-amber-50 px-4 py-2 text-center text-xs text-amber-700">
+          Sin conexión. Viendo datos sincronizados el{' '}
+          {format(new Date(syncedAt), "d 'de' MMMM, HH:mm", { locale: es })}.
+        </p>
+      )}
+
+      <Outlet
+        context={
+          {
+            trip,
+            activities,
+            lodgings,
+            isOnline,
+            isFromCache,
+            onTripSaved: setTrip,
+            onActivitiesChanged: setActivities,
+            onLodgingsChanged: setLodgings,
+          } satisfies TripDetailContext
+        }
+      />
       <BottomTabBar tripId={tripId} />
+      {tripId && <SyncFab onSync={sync} disabled={!isOnline} />}
     </div>
   )
 }

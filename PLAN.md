@@ -218,7 +218,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ### Fase 2 — Home
 
 - [x] 🤖 Listado de cards responsive + estados de carga/offline/vacío
-- [ ] ⏸ Revisar visualmente el Home y dar feedback de diseño
+- [x] ⏸ Revisar visualmente el Home y dar feedback de diseño
 
 ### Fase 3 — Shell del detalle de viaje
 
@@ -227,21 +227,21 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ### Fase 4 — Pestaña Principal
 
 - [x] 🤖 Formulario crear/editar datos base del viaje
-- [ ] ⏸ Revisar y dar feedback
+- [x] ⏸ Revisar y dar feedback
 
 ### Fase 5 — Pestaña Actividades
 
 - [x] 🤖 Alta de actividades + vista timeline
-- [ ] ⏸ Revisar y dar feedback
+- [x] ⏸ Revisar y dar feedback
 
 ### Fase 6 — Pestaña Estadía
 
 - [x] 🤖 Franja de días coloreados + alta/listado de estadías
-- [ ] ⏸ Revisar y dar feedback
+- [x] ⏸ Revisar y dar feedback
 
 ### Fase 7 — Sincronización offline
 
-- [ ] 🤖 FAB de sincronizar, descarga completa con reemplazo de cache, indicadores de estado
+- [x] 🤖 FAB de sincronizar, descarga completa con reemplazo de cache, indicadores de estado
 - [ ] ⏸ Probar el flujo offline en un celular real (modo avión + navegar)
 
 ### Fase 8 — PWA
@@ -316,6 +316,8 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Estadía: mismo patrón de formulario oculto + botón ("Nueva estadía") que Actividades, por consistencia. Sin botón de borrar todavía (ver "Pendiente").
 - Estadía: campos de mapa y contacto (WhatsApp) iguales a los de Actividades, mismos íconos y comportamiento.
 - Noches de tránsito automáticas: una actividad de Transporte que cruza de un día a otro (fin > inicio en fecha, no en hora) cubre esa noche en la franja de Estadía sin crear ningún registro en `lodgings` — se deriva en el cliente a partir de `activities` cada vez que se entra a la pestaña.
+- Lectura del viaje activo centralizada en `hooks/useActiveTrip.ts`: trip + activities + lodgings se cargan una sola vez en `TripDetail` y se comparten por contexto a las 3 pestañas (antes Actividades y Estadía repetían su propio fetch). Si el fetch online falla o no hay conexión, cae a `active_trip_cache` solo si coincide con el `trip_id` abierto; si no coincide, pantalla de "no disponible sin conexión, sincronízalo primero" (sin header ni tabs, igual que el estado de error existente).
+- FAB de sincronizar (`components/SyncFab.tsx`) con indicador de estado inline en el propio ícono (descargar → girando mientras sincroniza → check de éxito o alerta de error, 2 seg y vuelve a reposo); deshabilitado sin conexión. Banner ámbar debajo del header con la fecha/hora de la última sincronización cuando el viaje se está viendo desde cache.
 
 **Pendiente:**
 
