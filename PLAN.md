@@ -252,11 +252,11 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 ### Fase 9 — Pulido
 
 - [x] 🤖 Validaciones de formularios, manejo de errores, accesibilidad básica, ajustes responsive
-- [ ] ⏸ Prueba manual completa en un celular real
+- [x] ⏸ Prueba manual completa en un celular real
 
 ### Fase 10 — Despliegue final
 
-- [ ] 🤖 Push a `main` (dispara el deploy automático)
+- [x] 🤖 Push a `main` (dispara el deploy automático)
 - [ ] ⏸ Verificar la app en la URL pública de GitHub Pages (smoke test)
 
 ### Fase 11 — Futuro (fuera del MVP)
