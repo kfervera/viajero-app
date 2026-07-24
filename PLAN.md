@@ -84,14 +84,17 @@ activities
   id                uuid, pk
   trip_id           uuid, fk -> trips.id, on delete cascade
   summary           text            -- título corto, lo que se ve en el timeline colapsado
+  category          text, nullable  -- ver taxonomía fija en §6
+  subcategory       text, nullable  -- ícono de la subcategoría se ve en la card
   description       text, nullable  -- detalle largo, se ve al expandir la card
   place             text, nullable  -- lugar
   map_url           text, nullable  -- si existe, ícono de mapa en la card (abre el link)
   agency            text, nullable  -- agencia/operador
   phone_number      text, nullable  -- si existe, ícono de WhatsApp -> wa.me/{numero}
   notes             text[], default '{}'  -- una o más notas libres de esta actividad
+  evidence_urls     text[], default '{}'  -- una o más URLs (ej. archivos en Drive), lista de links al expandir la card
   start_datetime    timestamptz
-  end_datetime      timestamptz
+  end_datetime      timestamptz     -- se calcula en el formulario a partir de start + duración, no se edita directo
   created_at        timestamptz, default now()
   updated_at        timestamptz
 
@@ -146,9 +149,19 @@ Modelo confirmado — simple y de solo lectura offline:
 **Detalle de viaje** — header fijo arriba con ícono de grilla (4 cuadrados, vuelve al Home/lista de viajes) + nombre del viaje, bottom tab bar fija debajo del contenido (estilo app móvil, iconos del pack elegido en §3 + etiquetas) y FAB de sincronizar flotando sobre la tab bar. **Actividades es la pestaña por defecto**: tanto al crear un viaje nuevo como al entrar a uno existente desde el Home, se aterriza en Actividades (no en Principal).
 
 - **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin. Ícono sugerido: casa/mapa. Al crear un viaje nuevo (`/viajes/nuevo`), incluye un botón "Cancelar" junto al de guardar que vuelve al Home sin crear nada; ese botón no aparece al editar un viaje ya existente.
-- **Pestaña Actividades:** un solo formulario arriba (crear una actividad nueva, o editar la seleccionada) con summary, descripción, lugar, URL de mapa, agencia, número, notas (una o más) e inicio/fin, + timeline vertical debajo, agrupado por día, ordenado cronológicamente. Cada card del timeline:
-  - **Colapsada:** horario, summary, lugar (subtítulo chico), e íconos minimalistas al costado — mapa (si hay `map_url`, abre el link) y WhatsApp (si hay `phone_number`, abre `wa.me/{numero}`). Un ícono de lápiz, siempre visible (colapsada o expandida), abre esa actividad en el formulario de arriba para editarla.
-  - **Expandida** (al tocar la card): además muestra descripción, agencia y notas completas.
+- **Pestaña Actividades:** el formulario **no está siempre visible** — arranca oculto y aparece un botón "Nueva actividad"; al tocarlo (o al tocar el lápiz de una card existente) se abre el formulario para crear/editar. Al guardar o cancelar, el formulario se vuelve a ocultar. Debajo (o en su lugar, si el formulario está cerrado) va el timeline vertical, agrupado por día y ordenado cronológicamente.
+  - **Campos del formulario:** summary, categoría + subcategoría (selects encadenados, ver taxonomía abajo), inicio (fecha/hora), duración (texto tipo `1h 25m`, la hora de fin se calcula sumando la duración al inicio — no se edita la fecha de fin directamente), lugar, URL de mapa, agencia, número, descripción, notas (una o más), evidencias (una o más URLs, ej. links a archivos de Drive).
+  - **Duración:** formato libre con segmentos `Xh`/`Xm` en cualquier combinación (`1h 25m`, `45m`, `2h`); si no se puede interpretar o da 0, error de validación. Al editar una actividad existente, la duración se recalcula y se muestra a partir de `end_datetime - start_datetime` guardados.
+  - **Taxonomía de categorías** (fija en código, no editable por la persona — evita categorías/íconos huérfanos):
+    - Transporte → Vuelo (✈️), Bus (🚌), Auto/Traslado (🚗), Tren (🚆), Barco (🚢)
+    - Comida → Desayuno (☕), Almuerzo/Cena (🍽️)
+    - Turismo → Tour/Excursión (🧭), Museo (🏛️), Mirador/Paisaje (⛰️), Aventura (⛺)
+    - Compras → Compras (🛍️)
+    - Trámite → Migraciones/Aduana (🛂), Check-in/Check-out (📋)
+    - Otro → General (✨)
+    (íconos reales de `lucide-react`, acá solo como referencia visual del PLAN)
+  - **Colapsada:** ícono de la subcategoría (si tiene) a la izquierda, horario, summary, lugar (subtítulo chico), e íconos minimalistas al costado — mapa (si hay `map_url`, abre el link) y WhatsApp (si hay `phone_number`, abre `wa.me/{numero}`). Un ícono de lápiz, siempre visible (colapsada o expandida), abre esa actividad en el formulario para editarla.
+  - **Expandida** (al tocar la card): además muestra descripción, agencia, notas y la lista de evidencias (links clickeables que abren cada URL).
   - Ícono sugerido para la pestaña: calendario/lista, tono `teal-600` — mismo tono para los íconos de acción (mapa/WhatsApp/lápiz) dentro de cada card.
   - Supuesto: el número se concatena tal cual a `wa.me/{numero}`, se asume formato internacional sin símbolos (ej. `5491122334455`) — no se valida el formato.
 - **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout). Ícono sugerido: cama/edificio.
@@ -171,6 +184,8 @@ El progreso se rastrea con el checklist de la sección 9, usando dos marcas:
 - ⏸ **Pausa:** requiere una acción de la persona (crear un recurso externo, dar credenciales, revisar visualmente, probar en un dispositivo real, etc.) antes de poder continuar.
 
 Al llegar a un ítem ⏸, el agente se detiene, explica con claridad qué hay que hacer y por qué no lo puede hacer él mismo, deja commiteado y pusheado el avance hasta ese punto, y espera una confirmación explícita (ej. "listo", "continúa") para retomar el checklist. Reglas detalladas de commit/push están en el skill `viajero-dev` (`.claude/skills/viajero-dev/SKILL.md`).
+
+**Versionado:** la app lleva un número de versión (`package.json`, semver) visible en un footer chico dentro del Home. Cuando el agente termina algo y le toca a la persona validar, se lo indica diciendo "Prueba la versión X.Y.Z" — la persona confirma que esa versión aparece en el footer antes de dar feedback, así se asegura de estar viendo el build correcto.
 
 ## 9. Checklist de seguimiento
 
@@ -290,6 +305,11 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Modelo de actividades ampliado: summary, descripción, lugar, URL de mapa, agencia, número y notas (una o más, columna `text[]` en vez de tabla aparte — se evita una tabla hija para no sumar complejidad por notas simples sin metadata propia).
 - Edición de actividades reutiliza el mismo formulario de "agregar" (sin ruta ni pantalla nueva por actividad): el ícono de lápiz en cada card carga esa actividad en el formulario de arriba.
 - Timeline de actividades con card colapsable/expandible: colapsada muestra summary + lugar + horario + íconos de mapa/WhatsApp; expandida (al tocar) suma descripción, agencia y notas.
+- Formulario de actividades oculto por defecto: botón "Nueva actividad" lo abre; se cierra al guardar o cancelar.
+- Duración en vez de fecha de fin en el formulario de actividades (texto tipo `1h 25m`, calcula `end_datetime`); se evitaba el desborde de los dos campos de fecha lado a lado en mobile.
+- Categoría + subcategoría de actividad: taxonomía fija en código (no editable por la persona) con ícono por subcategoría, ver detalle en §6. Se eligió fija (selects encadenados) en vez de texto libre para que el ícono en la card nunca quede huérfano.
+- Campo "evidencias": lista de URLs (ej. archivos subidos a Drive por la persona), mismo patrón que notas; se muestran como links clickeables al expandir la card.
+- Versionado con semver en `package.json`, mostrado en un footer chico del Home (ver §8).
 
 **Pendiente:**
 
