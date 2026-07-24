@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Check, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { getDayNightCount } from '../lib/dayNight'
 import type { TripTemporalStatus } from '../lib/tripStatus'
 import type { Activity, TripIndexEntry } from '../lib/types'
 
@@ -29,6 +30,7 @@ export function TripCard({
     'd MMM yyyy',
     { locale: es },
   )}`
+  const { days, nights } = getDayNightCount(trip)
 
   return (
     <Link
@@ -59,7 +61,9 @@ export function TripCard({
       </div>
       <div className="p-3">
         <h2 className="truncate font-medium text-slate-800">{trip.name}</h2>
-        <p className="text-sm text-slate-500">{dateRange}</p>
+        <p className="text-sm text-slate-500">
+          {dateRange} · {days}D {nights}N
+        </p>
         {currentActivity && (
           <div className="mt-2 rounded-lg bg-blue-50 px-2 py-1.5">
             <p className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-blue-600">

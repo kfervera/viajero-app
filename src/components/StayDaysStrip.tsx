@@ -1,5 +1,6 @@
-import { eachDayOfInterval, format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { getTripNightKeys } from '../lib/dayNight'
 import type { TransportNightEntry } from '../lib/transportNights'
 import type { Lodging, Trip } from '../lib/types'
 
@@ -14,10 +15,11 @@ export function StayDaysStrip({
   lodgings,
   transportNightEntries,
 }: StayDaysStripProps) {
-  const days = eachDayOfInterval({
-    start: new Date(trip.start_datetime),
-    end: new Date(trip.end_datetime),
-  })
+  // Un chip por noche del viaje (no por día calendario): el día de checkout
+  // del viaje no necesita estadía, así que no aparece acá. Ver PLAN2.md §7 Fase 2.
+  const nightKeys = getTripNightKeys(trip)
+
+  if (nightKeys.length === 0) return null
 
   const transportDayKeys = new Set(
     transportNightEntries.flatMap((entry) => entry.dayKeys),
@@ -25,11 +27,14 @@ export function StayDaysStrip({
 
   return (
     <div className="flex gap-2 overflow-x-auto pb-2">
-      {days.map((day) => {
-        const dayKey = format(day, 'yyyy-MM-dd')
+      {nightKeys.map((dayKey) => {
+        const day = parseISO(dayKey)
+        // Cobertura exclusiva del checkout: una estadía cubre la noche solo
+        // si el checkout es posterior a esa noche (no ese mismo día) — si el
+        // viaje sigue después de un checkout, hace falta otra estadía.
         const coveredByLodging = lodgings.some(
           (lodging) =>
-            lodging.checkin_date <= dayKey && dayKey <= lodging.checkout_date,
+            lodging.checkin_date <= dayKey && dayKey < lodging.checkout_date,
         )
         const covered = coveredByLodging || transportDayKeys.has(dayKey)
 

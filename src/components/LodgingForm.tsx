@@ -6,6 +6,8 @@ import type { Lodging } from '../lib/types'
 
 interface LodgingFormProps {
   tripId: string
+  tripStartDate: string
+  tripEndDate: string
   lodging?: Lodging | null
   onSaved: (lodging: Lodging) => void
   onCancel: () => void
@@ -13,6 +15,8 @@ interface LodgingFormProps {
 
 export function LodgingForm({
   tripId,
+  tripStartDate,
+  tripEndDate,
   lodging,
   onSaved,
   onCancel,
@@ -35,6 +39,11 @@ export function LodgingForm({
 
     if (checkoutDate <= checkinDate) {
       setFormError('El checkout debe ser posterior al checkin.')
+      return
+    }
+
+    if (checkinDate < tripStartDate || checkoutDate > tripEndDate) {
+      setFormError('La estadía debe estar dentro de las fechas del viaje.')
       return
     }
 
@@ -101,6 +110,8 @@ export function LodgingForm({
         <input
           type="date"
           required
+          min={tripStartDate}
+          max={tripEndDate}
           value={checkinDate}
           onChange={(e) => setCheckinDate(e.target.value)}
           disabled={formDisabled}
@@ -113,6 +124,8 @@ export function LodgingForm({
         <input
           type="date"
           required
+          min={tripStartDate}
+          max={tripEndDate}
           value={checkoutDate}
           onChange={(e) => setCheckoutDate(e.target.value)}
           disabled={formDisabled}

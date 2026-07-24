@@ -79,11 +79,11 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 2 — Días y noches (D/N)
 
-- [ ] 🤖 Helper de cálculo días/noches (ej. `lib/dayNight.ts`): días = cantidad de fechas calendario distintas entre `start_datetime` y `end_datetime` (inclusive), noches = días − 1. Se reutiliza en el Home y en Estadía.
-- [ ] 🤖 `TripCard`: mostrar el badge "XD YN" (ej. "2D 1N") calculado a partir de las fechas del viaje.
-- [ ] 🤖 `StayDaysStrip`: cambia de un chip por cada día calendario del viaje a un chip por cada noche (noches = días − 1); si el viaje no tiene noches (empieza y termina el mismo día calendario), no se muestra ningún chip.
-- [ ] 🤖 Cobertura de una noche por una estadía pasa de `checkin_date <= día <= checkout_date` a `checkin_date <= noche < checkout_date`: el día de checkout de una estadía nunca cubre esa noche, así que si el viaje sigue después de ese checkout hacen falta más estadías (quedan en rojo/sin cubrir hasta agregarlas). `lib/transportNights.ts` ya expresa sus noches con esta misma semántica (`differenceInCalendarDays`), no necesita cambios.
-- [ ] 🤖 `LodgingForm`: validar que `checkin_date` no sea anterior a la fecha de inicio del viaje ni `checkout_date` posterior a la fecha de fin del viaje (comparando solo fecha, no hora); si no, error de validación igual al resto de los formularios (`role="alert"`).
+- [x] 🤖 Helper de cálculo días/noches (ej. `lib/dayNight.ts`): días = cantidad de fechas calendario distintas entre `start_datetime` y `end_datetime` (inclusive), noches = días − 1. Se reutiliza en el Home y en Estadía.
+- [x] 🤖 `TripCard`: mostrar el badge "XD YN" (ej. "2D 1N") calculado a partir de las fechas del viaje.
+- [x] 🤖 `StayDaysStrip`: cambia de un chip por cada día calendario del viaje a un chip por cada noche (noches = días − 1); si el viaje no tiene noches (empieza y termina el mismo día calendario), no se muestra ningún chip.
+- [x] 🤖 Cobertura de una noche por una estadía pasa de `checkin_date <= día <= checkout_date` a `checkin_date <= noche < checkout_date`: el día de checkout de una estadía nunca cubre esa noche, así que si el viaje sigue después de ese checkout hacen falta más estadías (quedan en rojo/sin cubrir hasta agregarlas). `lib/transportNights.ts` ya expresa sus noches con esta misma semántica (`differenceInCalendarDays`), no necesita cambios.
+- [x] 🤖 `LodgingForm`: validar que `checkin_date` no sea anterior a la fecha de inicio del viaje ni `checkout_date` posterior a la fecha de fin del viaje (comparando solo fecha, no hora); si no, error de validación igual al resto de los formularios (`role="alert"`). También se agregó `min`/`max` nativo a los inputs de fecha para que el selector del navegador ya limite el rango.
 - [ ] ⏸ Revisar visualmente el badge D/N en el Home y la franja de noches en Estadía (con un viaje de un solo día y uno de varias noches) y dar feedback.
 
 ### Fase 3 — Evidencias con nombre y url

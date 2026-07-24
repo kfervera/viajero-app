@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useOutletContext, useParams } from 'react-router-dom'
@@ -43,6 +44,8 @@ export function Estadia() {
 
   if (!tripId || !trip) return null
 
+  const tripStartDate = format(new Date(trip.start_datetime), 'yyyy-MM-dd')
+  const tripEndDate = format(new Date(trip.end_datetime), 'yyyy-MM-dd')
   const transportNightEntries = getTransportNightEntries(activities)
 
   const items: StayListItem[] = [
@@ -86,6 +89,8 @@ export function Estadia() {
           <LodgingForm
             key={formState.mode === 'edit' ? formState.lodging.id : 'new'}
             tripId={tripId}
+            tripStartDate={tripStartDate}
+            tripEndDate={tripEndDate}
             lodging={formState.mode === 'edit' ? formState.lodging : null}
             onSaved={handleSaved}
             onCancel={() => setFormState({ mode: 'closed' })}
