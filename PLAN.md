@@ -17,7 +17,7 @@ Una app web simple para planear y consultar itinerarios de viaje:
 **Incluido:**
 
 - CRUD de viajes: nombre, URL de imagen de portada, fecha/hora de inicio, fecha/hora de fin.
-- CRUD de actividades por viaje: descripción, fecha/hora de inicio, fecha/hora de fin. Vista tipo horario/calendario vertical, ordenada cronológicamente.
+- CRUD de actividades por viaje: summary (título corto), descripción, lugar, URL de mapa, agencia, número de contacto, notas (una o más), fecha/hora de inicio, fecha/hora de fin. Vista tipo horario/calendario vertical (timeline), ordenada cronológicamente — ver detalle de la UI en §6. (Estas notas son propias de cada actividad, no confundir con las "notas generales del viaje" que siguen fuera del MVP, ver abajo.)
 - CRUD de estadías por viaje: nombre/lugar, checkin y checkout (rango de fechas, puede cubrir varias noches). Vista superior con los días del viaje en verde (cubiertos) o rojo (sin estadía).
 - Sincronización manual (botón flotante) que descarga un viaje completo para verlo offline, en modo solo lectura.
 - Pantalla inicial navegable offline con metadatos ligeros de todos los viajes (nombre, imagen, fechas).
@@ -83,7 +83,13 @@ trips
 activities
   id                uuid, pk
   trip_id           uuid, fk -> trips.id, on delete cascade
-  description       text
+  summary           text            -- título corto, lo que se ve en el timeline colapsado
+  description       text, nullable  -- detalle largo, se ve al expandir la card
+  place             text, nullable  -- lugar
+  map_url           text, nullable  -- si existe, ícono de mapa en la card (abre el link)
+  agency            text, nullable  -- agencia/operador
+  phone_number      text, nullable  -- si existe, ícono de WhatsApp -> wa.me/{numero}
+  notes             text[], default '{}'  -- una o más notas libres de esta actividad
   start_datetime    timestamptz
   end_datetime      timestamptz
   created_at        timestamptz, default now()
@@ -140,7 +146,11 @@ Modelo confirmado — simple y de solo lectura offline:
 **Detalle de viaje** — header fijo arriba con ícono de grilla (4 cuadrados, vuelve al Home/lista de viajes) + nombre del viaje, bottom tab bar fija debajo del contenido (estilo app móvil, iconos del pack elegido en §3 + etiquetas) y FAB de sincronizar flotando sobre la tab bar. **Actividades es la pestaña por defecto**: tanto al crear un viaje nuevo como al entrar a uno existente desde el Home, se aterriza en Actividades (no en Principal).
 
 - **Pestaña Principal:** formulario del viaje — nombre, URL de imagen de portada (con preview), fecha/hora de inicio, fecha/hora de fin. Ícono sugerido: casa/mapa. Al crear un viaje nuevo (`/viajes/nuevo`), incluye un botón "Cancelar" junto al de guardar que vuelve al Home sin crear nada; ese botón no aparece al editar un viaje ya existente.
-- **Pestaña Actividades:** formulario para agregar actividad (descripción, inicio, fin) + timeline vertical debajo, agrupado por día, ordenado cronológicamente. Ícono sugerido: calendario/lista.
+- **Pestaña Actividades:** un solo formulario arriba (crear una actividad nueva, o editar la seleccionada) con summary, descripción, lugar, URL de mapa, agencia, número, notas (una o más) e inicio/fin, + timeline vertical debajo, agrupado por día, ordenado cronológicamente. Cada card del timeline:
+  - **Colapsada:** horario, summary, lugar (subtítulo chico), e íconos minimalistas al costado — mapa (si hay `map_url`, abre el link) y WhatsApp (si hay `phone_number`, abre `wa.me/{numero}`). Un ícono de lápiz, siempre visible (colapsada o expandida), abre esa actividad en el formulario de arriba para editarla.
+  - **Expandida** (al tocar la card): además muestra descripción, agencia y notas completas.
+  - Ícono sugerido para la pestaña: calendario/lista, tono `teal-600` — mismo tono para los íconos de acción (mapa/WhatsApp/lápiz) dentro de cada card.
+  - Supuesto: el número se concatena tal cual a `wa.me/{numero}`, se asume formato internacional sin símbolos (ej. `5491122334455`) — no se valida el formato.
 - **Pestaña Estadía:** franja superior con los días del viaje (derivados de las fechas del viaje) en verde si un lodging los cubre (checkin ≤ día ≤ checkout) o rojo si no; debajo, lista de estadías registradas + formulario para agregar una nueva (checkin/checkout). Ícono sugerido: cama/edificio.
 - **FAB de sincronizar:** ícono de "descargar"/"refrescar" del mismo pack.
 
@@ -277,6 +287,9 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 - Header del detalle de viaje: barra compartida arriba de las 3 pestañas con ícono de grilla (`lucide-react` `LayoutGrid`, vuelve al Home) + nombre del viaje; se sacaron los títulos duplicados que tenía cada pestaña por separado.
 - Pestaña por defecto al entrar/crear un viaje: Actividades (no Principal).
 - Botón "Cancelar" en el formulario de viaje nuevo, junto al de guardar, solo cuando es un viaje nuevo (no aparece al editar uno existente).
+- Modelo de actividades ampliado: summary, descripción, lugar, URL de mapa, agencia, número y notas (una o más, columna `text[]` en vez de tabla aparte — se evita una tabla hija para no sumar complejidad por notas simples sin metadata propia).
+- Edición de actividades reutiliza el mismo formulario de "agregar" (sin ruta ni pantalla nueva por actividad): el ícono de lápiz en cada card carga esa actividad en el formulario de arriba.
+- Timeline de actividades con card colapsable/expandible: colapsada muestra summary + lugar + horario + íconos de mapa/WhatsApp; expandida (al tocar) suma descripción, agencia y notas.
 
 **Pendiente:**
 
