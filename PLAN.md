@@ -199,7 +199,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 4 — Pestaña Principal
 
-- [ ] 🤖 Formulario crear/editar datos base del viaje
+- [x] 🤖 Formulario crear/editar datos base del viaje
 - [ ] ⏸ Revisar y dar feedback
 
 ### Fase 5 — Pestaña Actividades
