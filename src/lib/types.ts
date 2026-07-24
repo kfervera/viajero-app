@@ -11,7 +11,13 @@ export interface Trip {
 export interface Activity {
   id: string
   trip_id: string
-  description: string
+  summary: string
+  description: string | null
+  place: string | null
+  map_url: string | null
+  agency: string | null
+  phone_number: string | null
+  notes: string[]
   start_datetime: string
   end_datetime: string
   created_at: string

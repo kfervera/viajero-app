@@ -214,7 +214,7 @@ Leyenda: 🤖 = lo hace el agente · ⏸ = pausa, acción de la persona.
 
 ### Fase 5 — Pestaña Actividades
 
-- [ ] 🤖 Alta de actividades + vista timeline
+- [x] 🤖 Alta de actividades + vista timeline
 - [ ] ⏸ Revisar y dar feedback
 
 ### Fase 6 — Pestaña Estadía
